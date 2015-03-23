@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="misapplication-tap-highlight" content="no"/>
+	<meta name="HandheldFriendly" content="true"/>
+	<meta name="MobileOptimized" content="320"/>
+    <title>Hello H5+</title>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+    	<style type="text/css">
+		.scontent {
+			width: 100%;
+			position: fixed;
+			top: 44px;
+			bottom: 0px;
+			text-align: center;
+			overflow-y: scroll;
+			-webkit-overflow-scrolling: touch;
+		}
+		.mui-table-view-cell.active{
+			background: #f4f4f4;
+		}
+	</style>
+	<script type="text/javascript" charset="utf-8">
+		mui.init();
+		
+		//取消浏览器的所有事件，使得active的样式在手机上正常生效
+		document.addEventListener('touchstart',function(){
+		    return false;
+		}, true);
+		// 禁止选择
+		document.oncontextmenu=function(){
+			return false;
+		};
+		
+		
+		// 扩展API准备完成后要执行的操作
+		function plusReady(){
+			// 隐藏滚动条
+			plus.webview.currentWebview().setStyle({scrollIndicator:'none'});
+			
+			compatible_adjust();
+			
+			document.getElementById('J_about').addEventListener('tap', function(){
+				clicked(this.getAttribute('rel'));
+			});
+		}
+	    
+	    // 扩展API是否准备好，如果没有则监听“plusready"事件
+		if(window.plus){
+		    plusReady();
+		}else{ 
+		    document.addEventListener("plusready", plusReady, false);
+		}
+		
+		// DOMContentLoaded事件处理
+		var is_dom_ready = false;
+		document.addEventListener('DOMContentLoaded', function(){
+			is_dom_ready = true;
+			compatible_adjust();
+		}, false);
+		
+		
+		/**
+		 * 兼容样式调整
+		 */
+		var is_adjust = false;
+		function compatible_adjust(){
+			if(is_adjust || !window.plus || !is_dom_ready){
+				return;
+			}
+			is_adjust = true;
+			// iOS平台使用的原生滚动条
+			if(plus.os.name = 'iOS'){
+				//document.getElementById('content').className='';
+			}
+			
+			// 预创建二级窗口
+			preate_webviews();
+		}
+		
+		/**
+		 * 处理点击事件
+		 */
+		var _openw = null;
+		function clicked(id){
+			if(_openw){
+				reutrn ;
+			}
+			_openw = preate_webview_map[id];
+			if(_openw){
+				if(_openw.is_showed){
+					_openw.show('pop-in', 300);
+				}else{
+					_openw.show('pop-in', 300);
+					_openw.is_showed = true;
+				}
+				_openw = null;
+			}else{
+				// 未创建openw webview
+				plus.nativeUI.showWaiting();
+				
+				_openw = plus.webview.create(id, id, {
+					scrollIndicator: 'none',
+					scalable: false,
+					popGesture: 'hide'
+				},{preate:true});
+				preate_webview_map[id] = _openw;
+				//页面加载完成后才显示
+				_openw.addEventListener('loaded', function(){
+					plus.nativeUI.closeWaiting();
+					_openw.show('pop-in', 300);
+					_openw.is_showed = true;
+					_openw = null;
+				}, false);
+				
+				_openw.addEventListener('close', function(){
+					_openw = null;
+					if(preate_webview_map[id]){
+						preate_webview_map[id] = null;
+					}
+				}, false);
+			}
+		}
+		
+		// 预创建二级页面？ 涉及webview的缓存管理
+		var preate_webview_map = {};
+		function preate_webviews(){
+			//preate_webview('plus/webview.html');
+			
+		}
+		
+		function preate_webview(id){
+			if(!preate_webview_map[id]){
+				preate_webview_map[id] = wv;
+				var wv = plus.webview.create(id, id, {scrollIndicator: 'none', scalable:false, popGesture:'hide'}, {preate: true})
+				// 
+				wv.addEventListener('close', function(){
+					if(preate_webview_map[id]){
+						preate_webview_map[id] = null;
+					}
+				}, false);
+			}
+		}
+    </script>
+</head>
+<body>
+	<header class="mui-bar mui-bar-nav">
+	  <a class="mui-icon mui-icon-info mui-pull-right" id="J_about" rel="about.html"></a>
+	  <h1 class="mui-title">Hello H5+</h1>
+	</header>
+	<div id="content" class="scontent">
+		<ul id="page_list" class="mui-table-view">
+			<li class="mui-table-view-cell">
+				<a id="plus/accelerometer.html" class="mui-navigate-right" onclick="clicked(this.id);">
+					Accelerometer
+					<div>加速度传感器</div>
+				</a>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>
