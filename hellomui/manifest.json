@@ -1,10 +1,10 @@
-﻿{
+{
     "@platforms": ["android", "iPhone", "iPad"],
-    "id": "H50D5907D",/*应用的标识，创建应用时自动生成，勿手动修改*/
-    "name": "helloh5plus",/*应用名称，程序桌面图标名称*/
+    "id": "H574C42F3",/*应用的标识，创建应用时自动生成，勿手动修改*/
+    "name": "hellomui",/*应用名称，程序桌面图标名称*/
     "version": {
-        "name": "1.0",/*应用版本名称*/
-        "code": ""
+        "name": "1.0.0",/*应用版本名称*/
+        "code": "83"
     },
     "description": "",/*应用描述信息*/
     "icons": {
@@ -14,7 +14,7 @@
     "developer": {
         "name": "",/*开发者名称*/
         "email": "",/*开发者邮箱地址*/
-        "url": ""/*开发者个人主页地址*/
+        "url": "http://www.dcloud.io"/*开发者个人主页地址*/
     },
     "permissions": {
         "Accelerometer": {
@@ -53,7 +53,7 @@
         "Geolocation": {
             "description": "访问位置信息"
         },
-        "Invocation": {
+         "Invocation": {
             "description": "使用Native.js能力"
         },
         "Messaging": {
@@ -110,7 +110,6 @@
             "autoclose": true,/*是否自动关闭程序启动界面，true表示应用加载应用入口页面后自动关闭；false则需调plus.navigator.closeSplashscreen()关闭*/
             "waiting": true/*是否在程序启动界面显示等待雪花，true表示显示，false表示不显示。*/
         },
-        "popGesture": "close",/*设置应用默认侧滑返回关闭Webview窗口，"none"为无侧滑返回功能，"hide"为侧滑隐藏Webview窗口。参考http://ask.dcloud.net.cn/article/102*/
         "runmode": "liberate",/*应用的首次启动运行模式，可取liberate或normal，liberate模式在第一次启动时将解压应用资源（Android平台File API才可正常访问_www目录）*/
         "signature": "Sk9JTiBVUyBtYWlsdG86aHIyMDEzQGRjbG91ZC5pbw==",/*可选，保留给应用签名，暂不使用*/
         "distribute": {
@@ -120,7 +119,6 @@
                 "password": "",/*iOS应用打包个人证书导入密码*/
                 "p12": "",/*iOS应用打包个人证书，打包配置文件关联的个人证书*/
                 "devices": "universal",/*iOS应用支持的设备类型，可取值iphone/ipad/universal*/
-               	"UIReserveStatusbarOffset": false,
                 "frameworks":[
                 ]/*调用Native.js调用原生Objective-c API需要引用的FrameWork，如需调用GameCenter，则添加"GameKit.framework"*/
             },
@@ -130,26 +128,27 @@
                 "password": "",/*Android应用打包使用密钥库中证书的密码*/
                 "aliasname": "",/*Android应用打包使用密钥库中证书的别名*/
                 "permissions": [
+                    "<uses-permission android:name=\"com.android.launcher.permission.INSTALL_SHORTCUT\"/>",
+                    "<uses-permission android:name=\"com.android.launcher.permission.UNINSTALL_SHORTCUT\"/>"
                 ]/*使用Native.js调用原生安卓API需要使用到的系统权限*/
             },
             "orientation": [
-                "portrait-primary"
+            "portrait-primary",
+            "portrait-secondary"
             ],/*应用支持的方向，portrait-primary：竖屏正方向；portrait-secondary：竖屏反方向；landscape-primary：横屏正方向；landscape-secondary：横屏反方向*/
             "icons": {
                 "ios": {
                     "prerendered": true, /*应用图标是否已经高亮处理，在iOS6及以下设备上有效*/
                     "auto": "", /*应用图标，分辨率：512x512，用于自动生成各种尺寸程序图标*/
                     "iphone": {
-                        "normal": "", /*iPhone3/3GS程序图标，分辨率：57x57*/
-                        "retina": "", /*iPhone4程序图标，分辨率：114x114*/
-                        "retina7": "", /*iPhone4S/5/6程序图标，分辨率：120x120*/
-			"retina8": "", /*iPhone6 Plus程序图标，分辨率：180x180*/
-                        "spotlight-normal": "", /*iPhone3/3GS Spotlight搜索程序图标，分辨率：29x29*/
-                        "spotlight-retina": "", /*iPhone4 Spotlight搜索程序图标，分辨率：58x58*/
-                        "spotlight-retina7": "", /*iPhone4S/5/6 Spotlight搜索程序图标，分辨率：80x80*/
-                        "settings-normal": "", /*iPhone4设置页面程序图标，分辨率：29x29*/
-                        "settings-retina": "", /*iPhone4S/5/6设置页面程序图标，分辨率：58x58*/
-			"settings-retina8": "" /*iPhone6Plus设置页面程序图标，分辨率：87x87*/
+                        "normal": "",/*iPhone普通屏幕程序图标，分辨率：57x57*/
+                        "retina": "",/*iPhone高分屏程序图标，分辨率：114x114*/
+                        "retina7": "",/*iPhone iOS7高分屏程序图标，分辨率：120x120*/
+                        "spotlight-normal": "", /*iPhone Spotlight搜索程序图标，分辨率：29x29*/
+                        "spotlight-retina": "", /*iPhone高分屏Spotlight搜索程序图标，分辨率：58x58*/
+                        "spotlight-retina7": "",/*iPhone iOS7高分屏Spotlight搜索程序图标，分辨率：80x80*/
+                        "settings-normal": "", /*iPhone设置页面程序图标，分辨率：29x29*/
+                        "settings-retina": ""/*iPhone 高分屏设置页面程序图标，分辨率：58x58*/
                     },
                     "ipad": {
                         "normal": "", /*iPad普通屏幕程序图标，分辨率：72x72*/
@@ -177,10 +176,7 @@
                     "iphone": {
                         "default": "", /*iPhone3启动图片选，分辨率：320x480*/
                         "retina35": "",/*3.5英寸设备(iPhone4)启动图片，分辨率：640x960*/
-                        "retina40": "",/*4.0 英寸设备(iPhone5/iPhone5s)启动图片，分辨率：640x1136*/
-                        "retina47": "",/*4.7 英寸设备(iPhone6)启动图片，分辨率：750x1334*/
-                        "retina55": "",/*5.5 英寸设备(iPhone6 Plus)启动图片，分辨率：1242x2208*/
-                        "retina55l": ""/*5.5 英寸设备(iPhone6 Plus)横屏启动图片，分辨率：2208x1242*/
+                        "retina40": ""/*4.0 英寸设备(iPhone5)启动图片，分辨率：640x1136*/
                     },
                     "ipad": {
                         "portrait": "", /*iPad竖屏启动图片，分辨率：768x1004*/
