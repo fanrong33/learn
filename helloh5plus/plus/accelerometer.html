@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.scontent {
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 0px;
+				text-align: center;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			.dcontent {
+				text-align: center;
+				padding-top: 44px;
+				padding-bottom: 80px;
+			}
+			.mui-table-view-cell.active{
+				background: #f4f4f4;
+			}
+		</style>
+		<script type="text/javascript">
+			// DOMContentLoaded事件处理
+			var is_domready=false;
+			document.addEventListener('DOMContentLoaded',function(){
+				is_domready=true;
+				
+				document.getElementById('J_back').addEventListener('tap', function(){
+					back(true);
+				});
+				
+				g_init();
+			},false);
+			
+			// 处理返回事件
+			function back(hide){
+				if(window.plus){
+					var ws = plus.webview.currentWebview();
+					if(hide){
+						console.info(ws.id+' hide');
+						ws.hide('auto', 300);
+					}else{
+						console.info(ws.id+' close');
+						ws.close('auto', 300);
+					}
+				}else if(history.length>1){
+					history.back();
+				}else{
+					window.close();
+				}
+			}
+			
+			// 扩展API准备完成后要执行的操作
+			function plusReady(){
+				// 隐藏滚动条
+				plus.webview.currentWebview().setStyle({scrollIndicator:'none'});
+				
+			}
+			
+		    if(window.plus){
+			    plusReady();
+			}else{ 
+			    document.addEventListener("plusready", plusReady, false);
+			}
+			
+			
+			// 通用元素对象
+			var _dout_;
+			var _dcontent_;
+			function g_init(){
+				_dout_=document.getElementById("output");
+				_dcontent_=document.getElementById("dcontent");
+			}
+			
+			// 清空输出内容
+			function out_clean(){
+				_dout_.innerHTML="";
+				_dout_.scrollTop=0;//在iOS8存在不滚动的现象
+			};
+			// 输出内容
+			function out_set(s){
+				_dout_.innerHTML=s+"<br/>";
+				(0==_dout_.scrollTop)&&(_dout_.scrollTop=1);//在iOS8存在不滚动的现象
+			};
+			
+			// 输出行内容
+			function out_line(s){
+				_dout_.innerHTML+=s+"<br/>";
+				(0==_dout_.scrollTop)&&(_dout_.scrollTop=1);//在iOS8存在不滚动的现象
+			};
+
+			
+			function get_acc(){
+				out_set('获取设备当前加速度');
+				plus.accelerometer.getCurrentAcceleration(function(a){
+					out_line('X轴：' + a.xAxis + "<br/>Y轴：" + a.yAxis + "<br/>Z轴：" + a.zAxis);
+				}, function(e){
+					out_line('获取失败：' + e.message);
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Accelerometer</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<div class="mui-card">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="get_acc();">
+							获取设备当前加速度
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="watch_acc();">
+							监听设备加速度变化
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="watch_stop();">
+							停止监听设备加速度变化
+						</a>
+					</li>
+				</ul>
+			</div><!-- .mui-card -->
+			<div id="output">
+				Accelerometer可获取设备加速度传感器信息，包括x轴（屏幕水平方向）、y轴（垂直屏幕水平方向）、z轴（垂直屏幕平面方向）三个方向的加速度信息。
+			</div>
+		</div>
+	</body>
+</html>

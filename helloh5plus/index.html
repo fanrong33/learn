@@ -24,7 +24,6 @@
 		}
 	</style>
 	<script type="text/javascript" charset="utf-8">
-		mui.init();
 		
 		//取消浏览器的所有事件，使得active的样式在手机上正常生效
 		document.addEventListener('touchstart',function(){
@@ -34,7 +33,6 @@
 		document.oncontextmenu=function(){
 			return false;
 		};
-		
 		
 		// 扩展API准备完成后要执行的操作
 		function plusReady(){
@@ -59,6 +57,7 @@
 		var is_dom_ready = false;
 		document.addEventListener('DOMContentLoaded', function(){
 			is_dom_ready = true;
+			
 			compatible_adjust();
 		}, false);
 		
@@ -77,9 +76,18 @@
 				//document.getElementById('content').className='';
 			}
 			
+			var links = document.querySelectorAll('.mui-navigate-right');
+			[].forEach.call(links,  function (el) {
+			     el.addEventListener('tap', function(event) {
+			          event.preventDefault();
+			          clicked(this.id);
+			     }, false);
+			});
+			
 			// 预创建二级窗口
 			preate_webviews();
 		}
+		
 		
 		/**
 		 * 处理点击事件
@@ -107,7 +115,9 @@
 					scalable: false,
 					popGesture: 'hide'
 				},{preate:true});
+				
 				preate_webview_map[id] = _openw;
+				
 				//页面加载完成后才显示
 				_openw.addEventListener('loaded', function(){
 					plus.nativeUI.closeWaiting();
@@ -128,15 +138,18 @@
 		// 预创建二级页面？ 涉及webview的缓存管理
 		var preate_webview_map = {};
 		function preate_webviews(){
-			//preate_webview('plus/webview.html');
-			
+			preate_webview('about.html');
 		}
 		
 		function preate_webview(id){
 			if(!preate_webview_map[id]){
+				var wv = plus.webview.create(id, id, {
+					scrollIndicator: 'none', 
+					scalable:false, 
+					popGesture:'hide'
+				}, {preate: true})
 				preate_webview_map[id] = wv;
-				var wv = plus.webview.create(id, id, {scrollIndicator: 'none', scalable:false, popGesture:'hide'}, {preate: true})
-				// 
+				
 				wv.addEventListener('close', function(){
 					if(preate_webview_map[id]){
 						preate_webview_map[id] = null;
@@ -151,15 +164,17 @@
 	  <a class="mui-icon mui-icon-info mui-pull-right" id="J_about" rel="about.html"></a>
 	  <h1 class="mui-title">Hello H5+</h1>
 	</header>
+	
 	<div id="content" class="scontent">
 		<ul id="page_list" class="mui-table-view">
 			<li class="mui-table-view-cell">
-				<a id="plus/accelerometer.html" class="mui-navigate-right" onclick="clicked(this.id);">
+				<a id="plus/accelerometer.html" class="mui-navigate-right">
 					Accelerometer
 					<div>加速度传感器</div>
 				</a>
 			</li>
 		</ul>
 	</div>
+	
 </body>
 </html>

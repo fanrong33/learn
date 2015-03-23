@@ -26,7 +26,7 @@
 			}
 	    </style>
 	    <script type="text/javascript">
-	    		mui.init();
+	    		//mui.init();
 	    
 		    // 扩展API准备完成后要执行的操作
 			function plusReady(){
@@ -34,15 +34,9 @@
 				plus.webview.currentWebview().setStyle({scrollIndicator:'none'});
 				var current_webview = plus.webview.currentWebview();
 				
-				document.getElementById('J_back').addEventListener('click', function(){
+				document.getElementById('J_back').addEventListener('tap', function(){
 					back(true);
 				});
-			}
-			
-		    if(window.plus){
-			    plusReady();
-			}else{ 
-			    document.addEventListener("plusready", plusReady, false);
 			}
 			
 			// 处理返回事件
@@ -50,8 +44,10 @@
 				if(window.plus){
 					var ws = plus.webview.currentWebview();
 					if(hide){
+						console.info('click back button, ' +ws.id+' hide');
 						ws.hide('auto', 300);
 					}else{
+						console.info('click back button, ' +ws.id+' close');
 						ws.close('auto', 300);
 					}
 				}else if(history.length>1){
@@ -60,11 +56,18 @@
 					window.close();
 				}
 			}
+			
+		    if(window.plus){
+			    plusReady();
+			}else{ 
+			    document.addEventListener("plusready", plusReady, false);
+			}
+			
 	    </script>
 	</head>
 	<body>
 		<header class="mui-bar mui-bar-nav">
-			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
 			<h1 class="mui-title">关于</h1>
 		</header>
 		<div id="content" class="scontent">
