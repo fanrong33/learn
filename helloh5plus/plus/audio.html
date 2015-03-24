@@ -18,6 +18,16 @@
 				overflow-y: scroll;
 				-webkit-overflow-scrolling: touch;
 			}
+			.dcontent {
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				text-align: center;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
 			#output {
 				height: 100px;
 				position: fixed;
@@ -93,8 +103,8 @@
 				background-size: 32px 32px;
 			}
 			.rschedule{
-				width: 36px;
-				height: 36px;
+				width: 45px;
+				height: 45px;
 				margin: 0 auto;
 				
 				background-color: rgba(0,0,0,0);
@@ -102,7 +112,7 @@
 				opacity: .9;
 				border-left: 10px solid rgba(0,0,0,0);
 				border-right: 10px solid rgba(0,0,0,0);
-				border-radius: 50px;
+				border-radius: 50%;
 				box-shadow: 0 0 15px #2187e7;
 				
 				-webkit-animation: spin 1s infinite linear;
@@ -139,6 +149,7 @@
 					entry.getDirectory('audio', { create: true }, function(dir){
 						gentry = dir;
 						// 更新历史录音记录
+						update_history();
 					}, function(e){
 						out_set('Get directory audio failed: '+e.message);
 					});
@@ -161,8 +172,30 @@
 				play_layer 		 = document.getElementById("play_layer");
 				play_time_el 	 = document.getElementById("play_time");
 				play_progress_el = document.getElementById("progress");
-				paly_schedule_el = document.getElementById("schedule");
+				play_schedule_el = document.getElementById("schedule");
 			}, false);
+			
+			function create_item(entry){
+				var li = document.createElement('li');
+				li.className = 'mui-table-view-cell';
+				li.innerHTML = ''+
+					'<li class="mui-table-view-cell">'+
+					'	<a class="mui-navigate-right">'+
+					'		<span class="name"></span>'+
+					'		<div class="time"></div>'+
+					'	</a>'+
+					'</li>';
+				li.setAttribute('onclick', 'play_audio(this);');
+				history.insertBefore(li, empty.nextSibling);
+				li.querySelector('.name').innerText = entry.name;
+				li.querySelector('.time').innerText = "..."; // 通过meta获取文件属性信息
+				li.entry = entry;
+				
+				update_information(li);
+				
+				// 设置空项不可见
+				empty.style.display = 'none';
+			}
 			
 			// 开始录音
 			var audio_recorder 	= null;
@@ -180,6 +213,7 @@
 					out_line('录音完成：'+file);
 					plus.io.resolveLocalFileSystemURL(file, function(entry){
 						// TODO 创建文件Item
+						create_item(entry);
 					}, function(e){
 						out_line('读取录音文件错误：'+e.message);
 					});
@@ -197,6 +231,7 @@
 				record_layer.style.display = 'block';
 			}
 			
+			
 			/**
 			 * 停止录音
 			 */
@@ -209,6 +244,7 @@
 				record_time_el.innerText= '00:00:00';
 				timestamp = 0;
 			}
+			
 			
 			/**
 			 * 清除历史记录
@@ -225,6 +261,126 @@
 					out_line('操作失败：'+e.message);
 				});
 			}
+			
+			/**
+			 * 获取录音历史记录
+			 */
+			function update_history(){
+				if(!gentry){
+					return;
+				}
+				var reader = gentry.createReader();
+				reader.readEntries(function(entries){
+					for(var i in entries){
+						if(entries[i].isFile){
+							create_item(entries[i]);
+						}
+					}
+				}, function(e){
+					out_line('读取录音列表失败: '+e.message);
+				});
+			}
+			
+			// 获取录音文件信息
+			function update_information(li){
+				if(!li || !li.entry){
+					return ;
+				}
+				var entry = li.entry;
+				entry.getMetadata(function(metadata){
+					li.querySelector('.time').innerText = dateToStr(metadata.modificationTime);
+				}, function(e){
+					out_line('获取文件"'+entry.name+'"信息失败: '+e.message);
+				});
+			}
+			
+			/**
+			 * 播放音频文件
+			 */
+			function play_audio(li){
+				if(!li || !li.entry){
+					out_set('无效的音频文件');
+					return ;
+				}
+				out_set('播放音频文件: '+li.entry.name);
+				start_play('_doc/audio/'+li.entry.name);
+			}
+			
+			var audio_player		  =null;
+			var play_interval_id = null;
+			var play_time_el 	 = null;
+			var play_progress_el = null;
+			var play_schedule_el = null;
+
+			/**
+			 * 开始播放
+			 * @param {Object} url
+			 */
+			function start_play(url){
+				play_layer.style.display = 'block';
+				var width = play_progress_el.clientWidth;
+				
+				audio_player = plus.audio.createPlayer(url);
+				audio_player.play(function(){
+					out_line('播放完成！');
+					// 播放完成
+					play_time_el.innerText = timeToStr(duration)+"/"+timeToStr(duration);
+					play_schedule_el.style.webkitTransition = "all 0.3s linear";
+					play_schedule_el.style.width = width+"px";
+					stop_play();
+					
+				}, function(e){
+					out_line('播放音频文件\"'+url+"\" 失败："+e.message);
+				});
+				
+				// 获得总时长
+				var duration = audio_player.getDuration();
+				if(duration){
+					play_time_el.innerText = '00:00:00/'+timeToStr(duration);
+				}
+				
+				play_interval_id = setInterval(function(){
+					if(!duration){ // 兼容无法及时获取总时长的情况
+						duration = audio_player.getDuration();
+					}
+					var position = audio_player.getPosition();
+					if(!position){ // 兼容无法及时获取当前播放位置的情况
+						return;
+					}
+					play_time_el.innerText = timeToStr(position)+"/"+timeToStr(duration);
+					var percent = Math.round(width*position/duration);
+					if(percent < 8){
+						percent = 8;
+					}
+					play_schedule_el.style.width = percent+"px";
+				}, 1000);
+				
+				
+			}
+			
+			/**
+			 * 停止播放
+			 */
+			function stop_play(){
+				out_set('停止播放！');
+				clearInterval(play_interval_id);
+				play_interval_id = null;
+				setTimeout(reset_play, 500);
+				if(audio_player){
+					audio_player.stop();
+					audio_player = null;
+				}
+			}
+			
+			/**
+			 * 重置播放页面内容
+			 */
+			function reset_play(){
+				play_layer.style.display = 'none';
+				play_schedule_el.style.width = '8px';
+				play_schedule_el.style.webkitTransition = 'all 1s linear';
+				play_time_el.innerText = '00:00:00/00:00:00';
+			}
 		</script>
 	</head>
 	<body>
@@ -232,7 +388,7 @@
 			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
 			<h1 class="mui-title">Audio</h1>
 		</header>
-		<div id="dcontent" class="scontent">
+		<div id="dcontent" class="dcontent">
 			<br />
 			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="start_record();">开始录音</button>
 			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="start_play('_www/audio/friendship.mp3')">播放音乐</button>
@@ -258,7 +414,7 @@
 			<div id="play_time" class="play-time">00:00:00/00:00:00</div><br/>
 			<div id="progress" class="progress"><div id="schedule" class="schedule"></div></div>
 			<br/>
-			<div class="stop" onclick="stop_play();out_set('停止播放！');"></div>
+			<div class="stop" onclick="stop_play();"></div>
 		</div>
 		<!-- 录音模板 -->
 		<div id="record_layer" class="mask" style="display: none;">
