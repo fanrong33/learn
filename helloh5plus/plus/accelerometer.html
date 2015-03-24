@@ -107,6 +107,30 @@
 					out_line('获取失败：' + e.message);
 				});
 			}
+			
+			var aid = null;
+			function watch_acc(){
+				if(aid){
+					return ;
+				}
+				
+				out_set('监听设备加速度变化');
+				aid = plus.accelerometer.watchAcceleration(function(a){
+					out_set("监听设备加速度变化<br/>" + "X轴：" + a.xAxis + "<br/>Y轴：" + a.yAxis + "<br/>Z轴：" + a.zAxis);
+				}, function(e){
+					out_line("监听失败：" + e.message);
+				});
+			}
+			
+			function watch_stop(){
+				if(aid){
+					out_set("停止监听设备加速度变化");
+					plus.accelerometer.clearWatch(aid);
+					aid = null;
+				}else{
+					out_set("没有监听设备加速度变化");
+				}
+			}
 		</script>
 	</head>
 	<body>
