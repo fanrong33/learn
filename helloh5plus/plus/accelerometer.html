@@ -21,9 +21,36 @@
 			}
 			.dcontent {
 				text-align: center;
-				padding-top: 44px;
-				padding-bottom: 80px;
+				/*padding-top: 44px;
+				padding-bottom: 80px;*/
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 0px;
 			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+
 			.mui-table-view-cell.active{
 				background: #f4f4f4;
 			}
@@ -37,6 +64,8 @@
 				document.getElementById('J_back').addEventListener('tap', function(){
 					back(true);
 				});
+				
+				always_bounce('dcontent', 'link_list');
 				
 				g_init();
 			},false);
@@ -63,7 +92,6 @@
 			function plusReady(){
 				// 隐藏滚动条
 				plus.webview.currentWebview().setStyle({scrollIndicator:'none'});
-				
 			}
 			
 		    if(window.plus){
@@ -72,6 +100,37 @@
 			    document.addEventListener("plusready", plusReady, false);
 			}
 			
+/**
+ * 始终开启回弹效果
+ * 当容器内容高度不足以启动（-webkit-overflow-scrolling:touch）时，自动在后面添加空白div
+ * @param  string   wrapper_id 容器id, 设置了回弹样式
+ * @param  string   inner_id   容器内标签id
+ */
+function always_bounce(wrapper_id, inner_id){
+    var wrapper_el = document.getElementById(wrapper_id);
+    var inner_el   = document.getElementById(inner_id);
+
+    var wrapper_height = outer_height(wrapper_el, true);
+    var inner_height   = outer_height(inner_el, true);
+		
+    if(inner_height <= wrapper_height){
+        // 在滚动条的里面添加空的元素，撑开内容
+        var el = document.createElement('div');
+        el.style.height = (wrapper_height-inner_height+1)+'px';
+        wrapper_el.appendChild(el);
+    }
+	
+    // 原生方法
+    function outer_height(el, includeMargin){
+      var height = el.offsetHeight;
+     
+      if(includeMargin){
+        var style = el.currentStyle || getComputedStyle(el);
+        height += parseInt(style.marginTop) + parseInt(style.marginBottom);
+      }
+      return height;
+    }
+}
 			
 			// 通用元素对象
 			var _dout_;
@@ -139,7 +198,7 @@
 			<h1 class="mui-title">Accelerometer</h1>
 		</header>
 		<div id="dcontent" class="dcontent">
-			<div class="mui-card">
+			<div id="link_list" class="mui-card" style="margin-top: 15px;">
 				<ul class="mui-table-view">
 					<li class="mui-table-view-cell">
 						<a class="mui-navigate-right" onclick="get_acc();">
@@ -158,9 +217,9 @@
 					</li>
 				</ul>
 			</div><!-- .mui-card -->
-			<div id="output">
-				Accelerometer可获取设备加速度传感器信息，包括x轴（屏幕水平方向）、y轴（垂直屏幕水平方向）、z轴（垂直屏幕平面方向）三个方向的加速度信息。
-			</div>
+		</div>
+		<div id="output">
+			Accelerometer可获取设备加速度传感器信息，包括x轴（屏幕水平方向）、y轴（垂直屏幕水平方向）、z轴（垂直屏幕平面方向）三个方向的加速度信息。
 		</div>
 	</body>
 </html>

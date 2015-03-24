@@ -8,23 +8,28 @@
 	<meta name="MobileOptimized" content="320"/>
     <title>Hello H5+</title>
     <link href="css/mui.min.css" rel="stylesheet"/>
-    <script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
     	<style type="text/css">
 		.scontent {
 			width: 100%;
 			position: fixed;
 			top: 44px;
 			bottom: 0px;
-			text-align: center;
+			text-align: left;
+			
 			overflow-y: scroll;
 			-webkit-overflow-scrolling: touch;
+		}
+		.scontent .mui-table-view-cell span{
+			color: darkgray;
+			display: block;
+			font-size: 14px;
 		}
 		.mui-table-view-cell.active{
 			background: #f4f4f4;
 		}
 	</style>
 	<script type="text/javascript" charset="utf-8">
-		
 		//取消浏览器的所有事件，使得active的样式在手机上正常生效
 		document.addEventListener('touchstart',function(){
 		    return false;
@@ -41,9 +46,10 @@
 			
 			compatible_adjust();
 			
-			document.getElementById('J_about').addEventListener('tap', function(){
+			document.getElementById('J_about').addEventListener('tap', function(event){
 				clicked(this.getAttribute('rel'));
 			});
+
 		}
 	    
 	    // 扩展API是否准备好，如果没有则监听“plusready"事件
@@ -59,8 +65,41 @@
 			is_dom_ready = true;
 			
 			compatible_adjust();
+			
+			always_bounce('content', 'page_list');
 		}, false);
 		
+/**
+ * 始终开启回弹效果
+ * 当容器内容高度不足以启动（-webkit-overflow-scrolling:touch）时，自动在后面添加空白div
+ * @param  string   wrapper_id 容器id, 设置了回弹样式
+ * @param  string   inner_id   容器内标签id
+ */
+function always_bounce(wrapper_id, inner_id){
+    var wrapper_el = document.getElementById(wrapper_id);
+    var inner_el   = document.getElementById(inner_id);
+
+    var wrapper_height = outer_height(wrapper_el, true);
+    var inner_height   = outer_height(inner_el, true);
+	
+    if(inner_height <= wrapper_height){
+        // 在滚动条的里面添加空的元素，撑开内容
+        var el = document.createElement('div');
+        el.style.height = (wrapper_height-inner_height+1)+'px';
+        wrapper_el.appendChild(el);
+    }
+
+    // 原生方法，获取外部宽度，包含margin
+    function outer_height(el, includeMargin){
+      var height = el.offsetHeight;
+     
+      if(includeMargin){
+        var style = el.currentStyle || getComputedStyle(el);
+        height += parseInt(style.marginTop) + parseInt(style.marginBottom);
+      }
+      return height;
+    }
+}
 		
 		/**
 		 * 兼容样式调整
@@ -80,6 +119,7 @@
 			[].forEach.call(links,  function (el) {
 			     el.addEventListener('tap', function(event) {
 			          event.preventDefault();
+				
 			          clicked(this.id);
 			     }, false);
 			});
@@ -100,15 +140,23 @@
 			_openw = preate_webview_map[id];
 			if(_openw){
 				if(_openw.is_showed){
-					_openw.show('pop-in', 300);
+					_openw.show('pop-in', 300, function(){
+						console.info('show completed, remove .mui-active');
+						// 取消reffer webview的cell mui-active
+						document.getElementById(id).classList.remove('mui-active');
+					});
 				}else{
-					_openw.show('pop-in', 300);
+					_openw.show('pop-in', 300, function(){
+						console.info('show completed, remove .mui-active');
+						// 取消reffer webview的cell mui-active
+						document.getElementById(id).classList.remove('mui-active');
+					});
 					_openw.is_showed = true;
 				}
 				_openw = null;
 			}else{
 				// 未创建openw webview
-				plus.nativeUI.showWaiting();
+				//plus.nativeUI.showWaiting();
 				
 				_openw = plus.webview.create(id, id, {
 					scrollIndicator: 'none',
@@ -120,8 +168,12 @@
 				
 				//页面加载完成后才显示
 				_openw.addEventListener('loaded', function(){
-					plus.nativeUI.closeWaiting();
-					_openw.show('pop-in', 300);
+					//plus.nativeUI.closeWaiting();
+					_openw.show('pop-in', 300, function(){
+						console.info('show completed, remove .mui-active');
+						// 取消reffer webview的cell mui-active
+						document.getElementById(id).classList.remove('mui-active');
+					});
 					_openw.is_showed = true;
 					_openw = null;
 				}, false);
@@ -170,7 +222,13 @@
 			<li class="mui-table-view-cell">
 				<a id="plus/accelerometer.html" class="mui-navigate-right">
 					Accelerometer
-					<div>加速度传感器</div>
+					<span>加速度传感器</span>
+				</a>
+			</li>
+			<li class="mui-table-view-cell">
+				<a id="plus/audio.html" class="mui-navigate-right">
+					Audio
+					<span>音频录制/播放</span>
 				</a>
 			</li>
 		</ul>

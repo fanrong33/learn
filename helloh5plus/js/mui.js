@@ -5214,7 +5214,10 @@ var mui = (function(document, undefined) {
 	var SELECTOR_BUTTON = '.' + CLASS_BTN;
 	var overFactor = 0.8;
 	var cell, a;
-
+	var timeout_id;
+	var touchstart_time=0;
+	var touchmove_time=0;
+	
 	var isMoved = isOpened = openedActions = progress = false;
 	var sliderHandle = sliderActionLeft = sliderActionRight = buttonsLeft = buttonsRight = sliderDirection = sliderRequestAnimationFrame = false;
 	var translateX = lastTranslateX = sliderActionLeftWidth = sliderActionRightWidth = 0;
@@ -5291,6 +5294,7 @@ var mui = (function(document, undefined) {
 		isMoved = isOpened = openedActions = false;
 		var target = event.target;
 		var isDisabled = false;
+		
 		for (; target && target !== document; target = target.parentNode) {
 			if (target.classList) {
 				var classList = target.classList;
@@ -5320,9 +5324,14 @@ var mui = (function(document, undefined) {
 						event.stopPropagation();
 					}
 					if (!isDisabled) {
-						if (!(cell.querySelector('input') || cell.querySelector(SELECTOR_BUTTON) || cell.querySelector('.' + CLASS_TOGGLE))) {
-							toggleActive(true);
-						}
+						// 记住按下时间 touchstart_time
+						touchstart_time = new Date().getTime();
+						timeout_id = setTimeout(function(){
+							//console.info('set timeout, active cell');
+							if (!(cell.querySelector('input') || cell.querySelector(SELECTOR_BUTTON) || cell.querySelector('.' + CLASS_TOGGLE))) {
+								toggleActive(true);
+							}
+						}, 90);
 					}
 					break;
 				}
@@ -5330,6 +5339,15 @@ var mui = (function(document, undefined) {
 		}
 	});
 	window.addEventListener('touchmove', function(event) {
+		if(!isMoved){
+			// 按下，马上move, 则没有触发active
+			touchmove_time = new Date().getTime();
+			if(touchmove_time - touchstart_time <= 100){
+				//console.info('取消触发active, cleartimeout!!!');
+				window.clearTimeout(timeout_id);
+			}
+		}
+		
 		toggleActive(false);
 	});
 
