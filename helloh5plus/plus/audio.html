@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.scontent {
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				text-align: center;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			
+			.mask {
+				width: 100%;
+				height: 100%;
+				display: none;
+				text-align: center;
+				position: fixed;
+				top: 0;
+				background: rgba(0,0,0,0.8);
+				z-index: 9999;
+				overflow: hidden;
+			}
+			.play-time {
+				margin-top: 40%;
+				font-size: 22px;
+				color: #FFFFFF;
+			}
+			.progress {
+				width: 90%;
+				background-color: #666;
+			    margin: 0 5%;
+			    border: 1px solid #222;
+			    -webkit-border-radius: 5px;
+			    border-radius: 5px;
+			}
+			.schedule {
+			    width: 8px;
+			    height: 8px;
+			    margin: 1px 0;
+			    background-color: #FFCC33;
+			    -webkit-border-radius: 4px;
+			  	border-radius: 4px;
+			  	-webkit-transition: all 1s linear;
+			  	transition: all 1s linear;
+			}
+			.stop{
+				width: 72px;
+				height: 72px;
+				background: url(../img/stop.png) center center;
+				background-size: 72px;
+				margin: auto;
+				-webkit-border-radius: 72px;
+				border-radius: 72px;
+			}
+			.stop:active{
+				-webkit-box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5) inset;
+				box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5) inset;
+			}
+			.record-time{
+				font-size: 22px;
+				color: #ff0000;
+			}
+			.rprogress{
+				background: url(../img/microphone.png) no-repeat center center;
+				background-size: 32px 32px;
+			}
+			.rschedule{
+				width: 36px;
+				height: 36px;
+				margin: 0 auto;
+				
+				background-color: rgba(0,0,0,0);
+				border: 5px solid rgba(0,183,229,0.9);
+				opacity: .9;
+				border-left: 10px solid rgba(0,0,0,0);
+				border-right: 10px solid rgba(0,0,0,0);
+				border-radius: 50px;
+				box-shadow: 0 0 15px #2187e7;
+				
+				-webkit-animation: spin 1s infinite linear;
+				animation: spin 1s infinite linear;
+			}
+			@-webkit-keyframes spin {
+			    0% {
+			        -webkit-transform: rotate(0deg);
+			    }
+			    100% {
+			        -webkit-transform: rotate(360deg);
+			    }
+			}
+			@keyframes spin {
+			    0% {
+			        transform: rotate(0deg);
+			    }
+			    100% {
+			        transform: rotate(360deg);
+			    }
+			}
+		</style>
+		<script type="text/javascript">
+			var gentry = null;
+			var history = null;
+			var empty = null;
+			var record_layer = null;
+			var play_layer = null;
+			
+			function plus_ready(){
+				
+				// 获取音频目录对象
+				plus.io.resolveLocalFileSystemURL('_doc/', function(entry){
+					entry.getDirectory('audio', { create: true }, function(dir){
+						gentry = dir;
+						// 更新历史录音记录
+					}, function(e){
+						out_set('Get directory audio failed: '+e.message);
+					});
+				}, function(e){
+					out_set('resolve _doc/ failed: '+ e.message);
+				});
+			}
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			document.addEventListener('DOMContentLoaded', function(){
+				// 获取DOM元素对象
+				history 			 = document.getElementById('history');
+				empty 			 = document.getElementById("empty");
+				record_layer 	 = document.getElementById("record_layer");
+				record_time_el 	 = document.getElementById("record_time");
+				play_layer 		 = document.getElementById("play_layer");
+				play_time_el 	 = document.getElementById("play_time");
+				play_progress_el = document.getElementById("progress");
+				paly_schedule_el = document.getElementById("schedule");
+			}, false);
+			
+			// 开始录音
+			var audio_recorder 	= null;
+			var timestamp 		= 0;
+			var record_time_el	= null;
+			function start_record(){
+				out_set('开始录音');
+				audio_recorder = plus.audio.getRecorder();
+				if(audio_recorder == null){
+					out_line('录音对象未获取');
+					return ;
+				}
+				
+				audio_recorder.record({ filename: '_doc/audio/' }, function(file){
+					out_line('录音完成：'+file);
+					plus.io.resolveLocalFileSystemURL(file, function(entry){
+						// TODO 创建文件Item
+					}, function(e){
+						out_line('读取录音文件错误：'+e.message);
+					});
+				}, function(e){
+					out_line('录音失败'+e.message);
+				});
+				
+				
+				timestamp = 0;
+				record_interval_id = setInterval(function(){
+					timestamp++;
+					record_time_el.innerText = timeToStr(timestamp);
+				}, 1000);
+				
+				record_layer.style.display = 'block';
+			}
+			
+			/**
+			 * 停止录音
+			 */
+			function stop_record(){
+				audio_recorder.stop();
+				record_layer.style.display = 'none';
+				audio_recorder = null;
+				clearInterval(record_interval_id);
+				record_interval_id = null;
+				record_time_el.innerText= '00:00:00';
+				timestamp = 0;
+			}
+			
+			/**
+			 * 清除历史记录
+			 */
+			function clear_history(){
+				history.innerHTML = '<li id="empty" class="mui-table-view-cell">无历史记录</li>';
+				empty = document.getElementById("empty");
+				
+				// 删除音频文件
+				out_set('清空录音历史记录：');
+				gentry.removeRecursively(function(){
+					out_line('操作成功！');
+				}, function(e){
+					out_line('操作失败：'+e.message);
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Audio</h1>
+		</header>
+		<div id="dcontent" class="scontent">
+			<br />
+			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="start_record();">开始录音</button>
+			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="start_play('_www/audio/friendship.mp3')">播放音乐</button>
+			<br />
+			<div class="mui-card">
+				<ul id="history" class="mui-table-view">
+					<li id="empty" class="mui-table-view-cell">
+						<a class="mui-navigate-right">
+							无历史记录
+						</a>
+					</li>
+				</ul>
+			</div>
+			<br />
+			<button class="mui-btn mui-btn-danger mui-btn-block" onclick="clear_history();">清空历史记录</button>
+		</div>
+		<div id="output">
+			Audio用于管理音频设备，可调用麦克风录制音频文件，也可播放音频文件。
+		</div>
+		
+		<!--播放模板 -->
+		<div id="play_layer" class="mask"  style="display: none;">
+			<div id="play_time" class="play-time">00:00:00/00:00:00</div><br/>
+			<div id="progress" class="progress"><div id="schedule" class="schedule"></div></div>
+			<br/>
+			<div class="stop" onclick="stop_play();out_set('停止播放！');"></div>
+		</div>
+		<!-- 录音模板 -->
+		<div id="record_layer" class="mask" style="display: none;">
+			<div style="width: 100%; height: 20%;"></div>
+			<div class="rprogress"><div class="rschedule"></div></div>
+			<br />
+			<div id="record_time" class="record-time">00:00:00</div>
+			<br />
+			<div class="stop" onclick="stop_record();"></div>
+		</div>
+		
+	</body>
+</html>
