@@ -134,6 +134,39 @@
 					
 				}
 			}
+			
+			function onempty(){
+				if(window.plus){
+					plus.nativeUI.alert('无扫描记录');
+				}else{
+					alert('无扫描记录');
+				}
+			}
+			
+			/**
+			 * 清空历史记录
+			 */
+			function clear_history(){
+				if(barcode_img_list.length >0){
+					var history = document.getElementById('history');
+					history.innerHTML = ''+
+						'<li id="empty" class="mui-table-view-cell" onclick="onempty();">'+
+						'	<a class="mui-navigate-right">'+
+						'		无历史记录'+
+						'	</a>'+
+						'</li>';
+				}
+				out_set('清空历史记录: ');
+				plus.io.resolveLocalFileSystemURL('_doc/barcode/', function(entry){
+					entry.removeRecursively(function(){
+						out_line('操作成功！');
+					}, function(e){
+						out_line('操作失败: '+ e.message);
+					});
+				}, function(e){
+					out_line('操作失败: '+ e.message);
+				});
+			}
 		</script>
 	</head>
 	<body>
