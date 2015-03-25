@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../js/template.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.dcontent {
+				text-align: center;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+		</style>
+		<script type="text/javascript">
+		
+			function plus_ready(){
+			}
+			
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded', function(){
+				
+				always_bounce('dcontent', 'link_list');
+				
+			}, false);
+			
+			function set_item_fun(number){
+				// 循环插入100条数据
+				var dataNum = new Number(number);
+				for(var i=0; i< dataNum; i++){
+					plus.storage.setItem('key'+i, 'value'+i);
+				}
+				
+				var length = plus.storage.getLength();
+				out_set('数据存储成功，存储了'+length+'条数据;');
+			}
+			
+			function get_all_item(){
+				out_set('获取数据：');
+				var length = plus.storage.getLength();
+				if(length==0){
+					out_line('没有发现任何数据');
+					return;
+				}
+				for( var i=0; i< length; i++){
+					var key = plus.storage.key(i);
+					var value = plus.storage.getItem(key);
+					out_line('key:'+key+'-->value:'+value);
+				}
+			}
+			
+			function modify_top_five(){
+				out_set('修改前的数据是:');
+				for(var i=0; i<5; i++){
+					var key = plus.storage.key(i);
+					var value = plus.storage.getItem(key);
+					out_line('key:'+key+'-->value:'+value);
+					plus.storage.setItem(key, '新数据之>>'+i);
+				}
+				out_line('修改后的数据是:');
+				for(var i=0; i<5; i++){
+					var key = plus.storage.key(i);
+					var value = plus.storage.getItem(key);
+					out_line('key:'+key+'-->value:'+value);
+				}
+			}
+			
+			function del_item(){
+				out_set('删除数据：');
+				var item_length = plus.storage.getLength();
+				for( var i=0; i< item_length; i+=2){
+					var key = plus.storage.key(i);
+					plus.storage.removeItem(key);
+				}
+				var item_remain_length = plus.storage.getLength();
+				out_line('移除了'+ (item_length-item_remain_length)+'条数据');
+			}
+			
+			function clear_all_item(){
+				plus.storage.clear();
+				var count = plus.storage.getLength();
+				if(count == 0){
+					out_set('storage清除数据成功！');
+				}else{
+					out_set('storage清除数据失败!');
+				}
+			}
+			
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Storage</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<div id="link_list" class="mui-card" style="margin-top: 15px;">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="set_item_fun(11);">
+							插入11条数据
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="get_all_item();">
+							查询所有数据
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="modify_top_five();">
+							修改前五条数据的内容
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="del_item();">
+							删除部分item
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="clear_all_item();">
+							清除所有内容
+						</a>
+					</li>
+				</ul>
+			</div><!-- .mui-card -->
+		</div>
+		<div id="output">
+			Storage管理本地数据存储，用于保存应用的全局数据，可在程序内部跨页面(跨域)共享数据。
+		</div>
+	</body>
+</html>
