@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.scontent {
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				text-align: center;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			.dcontent {
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				text-align: center;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			
+		</style>
+		<script type="text/javascript">
+			var img = null;
+			
+			function plus_ready(){
+				
+			}
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			document.addEventListener('DOMContentLoaded', function(){
+				img = document.getElementById("barcode_img");
+			}, false);
+			
+			function clicked(id){
+				var webview = plus.webview.create(id, id);
+				webview.show('pop-in', 300);
+			}
+			
+			
+			var barcode_img_list = [];
+			function scaned(type, result, file){
+				var date = new Date();
+				var hours = date.getHours();
+				var minutes = date.getMinutes();
+				var seconds = date.getSeconds();
+				var milliseconds = date.getMilliseconds();
+				var time = '['+hours+':'+minutes+':'+seconds+'.'+milliseconds+']';
+				var li = null;
+				var history = document.getElementById('history');
+				if(barcode_img_list.length>0){
+					li = document.createElement('li');
+					history.insertBefore(li, history.childNodes[0]);
+				}else{
+					li = document.getElementById("empty");
+				}
+//				<li id="empty" class="mui-table-view-cell" onclick="onempty();">
+//					<a class="mui-navigate-right">
+//						无历史记录
+//					</a>
+//				</li>
+				
+				li.id = barcode_img_list.length;
+				var html = time + ' ' + type + '码<div>' + result +'</div>';
+				li.innerHTML = html;
+				li.setAttribute('onclick', "selected(id);");
+				barcode_img_list[barcode_img_list.length] = { type: type, result: result, file: file };
+				
+				update(type, result, file);
+			}
+			
+			function selected(id){
+				var img_data = barcode_img_list[id];
+				update( img_data.type, img_data.result, img_data.file);
+				
+				if(img_data.result.indexOf('http://')==0 || img_data.result.indexOf('https://')==0){
+					plus.nativeUI.confirm()
+					plus.nativeUI.confirm(img_data.result, function(event){
+						if(event.index == 0){
+							plus.runtime.openURL(img_data.result);
+						}
+					}, "", ["打开", '取消']);
+				}
+			}
+			
+			function update(type, result, file){
+				out_set('扫描成功: ');
+				out_line(type);
+				out_line(result);
+				out_line('图片地址: '+file);
+				
+				// 更新页面二维码图片
+				if(!file || file == null){
+					img.src = '../img/barcode.png';
+				}else{
+					plus.io.resolveLocalFileSystemURL(file, function(entry){
+						// 将目录路径转换为本地路径URL地址
+						img.src = entry.toLocalURL();
+						out_line('本地路径URL地址: '+img.src);
+					});
+					img.src = file;
+					
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Barcode</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br />
+			<img id="barcode_img" src="../img/barcode.png" width="40%"/>
+			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="clicked('barcode_scan.html');">扫一扫</button>
+			<br />
+			<div class="mui-card">
+				<ul id="history" class="mui-table-view">
+					<li id="empty" class="mui-table-view-cell" onclick="onempty();">
+						<a class="mui-navigate-right">
+							无历史记录
+						</a>
+					</li>
+				</ul>
+			</div>
+			<br />
+			<button class="mui-btn mui-btn-danger mui-btn-block" onclick="clear_history();">清空历史记录</button>
+		</div>
+		<div id="output">
+			Barcode提供二维码扫描识别功能，支持调用摄像头即时扫描二维码，也可直接输入图片进行扫描识别。
+		</div>
+		
+	</body>
+</html>
