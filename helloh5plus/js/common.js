@@ -99,3 +99,36 @@ function ultZeroize(v,l){
 	}
 	return z+v;
 };
+
+
+/**
+ * 始终开启回弹效果
+ * 当容器内容高度不足以启动（-webkit-overflow-scrolling:touch）时，自动在后面添加空白div
+ * @param  string   wrapper_id 容器id, 设置了回弹样式
+ * @param  string   inner_id   容器内标签id
+ */
+function always_bounce(wrapper_id, inner_id){
+    var wrapper_el = document.getElementById(wrapper_id);
+    var inner_el   = document.getElementById(inner_id);
+
+    var wrapper_height = outer_height(wrapper_el, true);
+    var inner_height   = outer_height(inner_el, true);
+		
+    if(inner_height <= wrapper_height){
+        // 在滚动条的里面添加空的元素，撑开内容
+        var el = document.createElement('div');
+        el.style.height = (wrapper_height-inner_height+1)+'px';
+        wrapper_el.appendChild(el);
+    }
+	
+    // 原生方法
+    function outer_height(el, includeMargin){
+      var height = el.offsetHeight;
+     
+      if(includeMargin){
+        var style = el.currentStyle || getComputedStyle(el);
+        height += parseInt(style.marginTop) + parseInt(style.marginBottom);
+      }
+      return height;
+    }
+}

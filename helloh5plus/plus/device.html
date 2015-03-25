@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../js/template.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.dcontent {
+				text-align: center;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+		</style>
+		<script type="text/javascript">
+		
+			function plus_ready(){
+			}
+			
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded', function(){
+				
+				always_bounce('dcontent', 'link_list');
+				
+			}, false);
+			
+			
+			function get_device_info(){
+				var str = '';
+				str += '设备型号：'+plus.device.model + "<br/>";
+				str += '设备厂商：'+plus.device.vendor + "<br/>";
+				str += 'IMEI：' + plus.device.imei + "<br/>";
+				str += 'UUID：' + plus.device.uuid + "<br/>"; // 貌似苹果已经不允许获取了，可以获取得到
+				str += "IMSI：";
+				for (var i = 0; i<plus.device.imsi.length; i++){
+					str += plus.device.imsi[i];
+				}
+				str += "<br/>";
+				str += "屏幕分辨率：" + plus.screen.resolutionWidth * plus.screen.scale 
+					+ " x " + plus.screen.resolutionWidth * plus.screen.scale + "<br/>";
+				str += "resolution：" + plus.screen.resolutionWidth + ", " + plus.screen.scale + "<br/>";
+				str += "DPI：" + plus.screen.dpiX + " x " + plus.screen.dpiY;
+				
+				out_set(str);
+			}
+			
+			function get_os_info(){
+				// 接入template js模板引擎，否则拼接太浪费时间
+				var data = {};
+				
+				data.name 			= plus.os.name;
+				data.version 		= plus.os.version;
+				data.language 		= plus.os.language;
+				data.vendor 			= plus.os.vendor;
+				var networkinfo_map = {};
+			    networkinfo_map[plus.networkinfo.CONNECTION_UNKNOW] 		= "未知";
+			    networkinfo_map[plus.networkinfo.CONNECTION_NONE] 		= "未连接网络";
+			    networkinfo_map[plus.networkinfo.CONNECTION_ETHERNET] 	= "有线网络";
+			    networkinfo_map[plus.networkinfo.CONNECTION_WIFI] 		= "WiFi网络";
+			    networkinfo_map[plus.networkinfo.CONNECTION_CELL2G] 		= "2G蜂窝网络";
+			    networkinfo_map[plus.networkinfo.CONNECTION_CELL3G] 		= "3G蜂窝网络";
+			    networkinfo_map[plus.networkinfo.CONNECTION_CELL4G] 		= "4G蜂窝网络";
+			    data.network_type 	= networkinfo_map[plus.networkinfo.getCurrentType()];
+
+				var html = template.render('tpl_sys_info', data);
+				out_set(html);
+			}
+			
+			function device_beep(){
+				var str = '';
+				switch(plus.os.name){
+					case 'iOS':
+						if(plus.device.model.indexOf('iPhone') >=0){
+							plus.device.beep();
+							str += '设备蜂鸣中...';
+						}else{
+							str += '此设备不支持蜂鸣';
+						}
+						break;
+					default:
+						plus.device.beep();
+						break;
+				}
+				out_set(str);
+			}
+			
+			function device_vibrate(){
+				var str = '';
+				switch(plus.os.name){
+					case 'iOS':
+						if(plus.device.model.indexOf('iPhone') >= 0){
+							plus.device.vibrate();
+							str += '设备振动中...';
+						}else{
+							str += '此设备不支持振动';
+						}
+						break;
+					default:
+						plus.device.vibrate();
+						break;
+				}
+				out_set(str);
+			}
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Accelerometer</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<div id="link_list" class="mui-card" style="margin-top: 15px;">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="get_device_info();">
+							获取设备信息
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="get_os_info();">
+							获取系统信息
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="device_beep();">
+							蜂鸣
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="device_vibrate();">
+							震动
+						</a>
+					</li>
+				</ul>
+			</div><!-- .mui-card -->
+		</div>
+		<div id="output">
+			Device可获取手机设备相关信息，包括硬件、软件、网络等信息。
+		</div>
+		<script id="tpl_sys_info" type="text/html">
+			名称：<%= name %> <br />
+			版本：<%= version %> <br />
+			语言：<%= language %> <br />
+			厂商：<%= vendor %> <br />
+			网络类型：<%= network_type %>
+		</script>
+	</body>
+</html>
