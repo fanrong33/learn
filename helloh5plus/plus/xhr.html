@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../js/template.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.dcontent {
+				text-align: center;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+		</style>
+		<script type="text/javascript">
+		
+			function plus_ready(){
+			}
+			
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded', function(){
+				
+				always_bounce('dcontent', 'link_list');
+				
+			}, false);
+			
+			var url = 'http://m.baidu.com/';
+			var xhr = null;
+			function xhr_create(){
+				if(xhr){
+					out_line('xhr请求已创建');
+					return;
+				}
+				
+				out_set('创建请求：');
+				xhr = new plus.net.XMLHttpRequest();
+				xhr.onreadystatechange = function(){
+					switch( xhr.readyState){
+						case 0:
+							out_line('xhr请求已初始化');
+							break;
+						case 1:
+							out_line('xhr请求已打开');
+							break;
+						case 2:
+							out_line('xhr请求已发送');
+							break;
+						case 3:
+							out_line('xhr请求已响应');
+							break;
+						case 4:
+							out_line('xhr请求已完成');
+							if(xhr.status == 200){
+								out_line('xhr请求成功：' + xhr.responseText);
+							}else{
+								out_line('xhr请求失败：'+xhr.status);
+							}
+							break;
+						default:
+							break;
+					}
+				}
+				xhr.open('GET', url);
+				xhr.send();
+			}
+			
+			function xhr_response_header(){
+				if(xhr){
+					if(xhr.readyState != 4){
+						out_line('xhr请求未完成');
+					}else if(xhr.status != 200){
+						out_set('xhr请求失败：'+xhr.readyState);
+					}else{
+						out_set('xhr请求响应头数据：');
+						out_line(xhr.getAllResponseHeaders());
+					}
+				}else{
+					out_set('未发送请求');
+				}
+			}
+			
+			function xhr_abort(){
+				if(xhr){
+					out_set('取消请求');
+					if(xhr.readyState != 4){
+						xhr.abort();
+					}
+					xhr = null;
+				}else{
+					out_set('未发送请求');
+				}
+			}
+			
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">nativeUI</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<div id="link_list" class="mui-card" style="margin-top: 15px;">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="xhr_create();">发送请求</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="xhr_response_header();">获取所有响应头</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="xhr_abort();">取消请求</a>
+					</li>
+				</ul>
+			</div><!-- .mui-card -->
+		</div>
+		<div id="output">
+			XMLHttpRequest管理网络请求操作，可进行跨域网络数据请求。
+		</div>
+	</body>
+</html>
