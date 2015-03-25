@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../js/template.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.dcontent {
+				text-align: center;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+		</style>
+		<script type="text/javascript">
+		
+			function plus_ready(){
+			}
+			
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded', function(){
+				
+				always_bounce('dcontent', 'link_list');
+				
+			}, false);
+			
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Messaging</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<div id="link_list" class="mui-card" style="margin-top: 15px;">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" href="sms:10086">
+							发送短信
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" href="tel:10086">
+							拨打电话
+						</a>
+					</li>
+				</ul>
+			</div><!-- .mui-card -->
+		</div>
+		<div id="output">
+			Storage管理本地数据存储，用于保存应用的全局数据，可在程序内部跨页面(跨域)共享数据。
+		</div>
+	</body>
+</html>
