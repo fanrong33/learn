@@ -211,7 +211,26 @@
                         "scheme": "wx****************",/*ios平台在微信应用中支付完成后返回当前应用使用的url scheme，值为在微信开放平台升级应用的AppID值*/
                         "description": "微信支付"
                     }
-            		}
+            		},
+            		"share": {/*配置应用使用分享功能，参考http://ask.dcloud.net.cn/article/27*/
+                    "sina": {
+                        "appkey": "",/*新浪微博平台应用appkey*/
+                        "appsecret": "",/*新浪微博平台应用appsecret*/
+                        "redirect_uri": "",/*新浪微博平台应用分享回调地址*/
+                        "description": "新浪微博分享"
+                    },
+                    "tencent": {
+                        "appkey": "",/*腾讯微博平台应用appkey*/
+                        "appsecret": "",/*腾讯微博平台应用appsecret*/
+                        "redirect_uri": "",/*腾讯微博平台应用分享回调地址*/
+                        "description": "腾讯微博分享"
+                    },
+                    "weixin": {
+                        "appid": "",/*微信开放平台应用appid*/
+                        "appsecret": "",/*微信开放平台应用appsecret*/
+                        "description": "微信分享"
+                    }
+                }
             }
         }
     }

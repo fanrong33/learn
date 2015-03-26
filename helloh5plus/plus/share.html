@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../js/template.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.dcontent {
+				text-align: center;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			.popover{
+				display:none;
+				position:fixed;
+				width:100%;
+				height:100%;
+				top:0;
+				text-align: center;
+				background-color: rgba(0,0,0,0.8);
+				overflow: hidden;
+				opacity:0;
+				-webkit-transition: all 0.3s ease-in-out;
+				transition: all 0.3s ease-in-out;
+				z-index:99998;
+			}
+			.menu{
+				display:none;
+				width:100%;
+				padding: 10px;
+				position:fixed;
+				left:0;
+				bottom:1px;
+				background: #ffffff;
+				border-radius: 2px;
+				opacity: 0;
+				-webkit-transform:translateY(100%);
+				-webkit-transition: all 0.3s ease-in-out;
+				transition: all 0.3s ease-in-out;
+				z-index:99999;
+			}
+		</style>
+		<script type="text/javascript">
+			
+			function plus_ready(){
+				
+				update_services();
+			}
+			
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded', function(){
+				
+			}, false);
+			
+			var share_service_map = {};
+			/**
+			 * 更新分享服务
+			 */
+			function update_services(){
+				plus.share.getServices(function(services){
+					share_service_map = {};
+					for(var i in services){
+						var service = services[i];
+						share_service_map[service.id] = service;
+					}
+				}, function(e){
+					out_set('获取分享服务列表失败：'+e.message);
+				});
+			}
+			
+			/**
+			 * 打开分享
+			 */
+			function share_show(){
+				var popover = document.getElementById("popover");
+				var menu    = document.getElementById("menu");
+
+				popover.style.display = 'block';
+				menu.style.display = 'block';
+				setTimeout(function(){ // 打开的时候，动画慢一点
+					popover.style.opacity = "1";
+					menu.style.opacity = "1";
+					menu.style.webkitTransform = "translateY(0)";
+				}, 0);
+			}
+			
+			/**
+			 * 取消分享
+			 */
+			function share_hide(){
+				popover.style.opacity = "0";
+				menu.style.opacity = "0";
+				menu.style.webkitTransform = "translateY(100%)";
+				setTimeout(function(){ // 关闭的时候，隐藏慢一点，直接隐藏动画都看不到了
+					popover.style.display = "none";
+					menu.style.display = "none";
+				}, 500);
+			}
+			
+			/**
+			 * 分享操作
+			 * @param {Object} id
+			 * @param {Object} extra
+			 */
+			function share_action(id, extra){
+				var service = share_service_map[id];
+				out_set('分享操作：');
+				if(!id || !service){
+					out_line('无效的分享服务!');
+					return;
+				}
+				if(service.authenticated){
+					out_line('--- 已授权 ---'); //TODO 使用out_line接口，正式发布后记录到系统日志
+					out_line(JSON.stringify(service));
+					share_message(service, extra);
+				}else{
+					out_line('--- 未授权 ---');
+					service.authorize(function(){
+						share_message(service, extra);						
+					}, function(e){
+						out_line('认证授权失败：'+e.code+' - '+e.message);
+					});
+				}
+			}
+			
+			/**
+			 * 发送分享信息
+			 * @param {Object} service
+			 * @param {Object} extra
+			 */
+			function share_message(service, extra){
+				var msg = {
+					content: sharecontent.value,
+					extra: { scene: extra }
+				};
+				out_line(JSON.stringify(msg));
+				
+				service.send(msg, function(){
+					out_line('分享到"'+service.description+'"成功');
+				}, function(e){
+					out_line('分享到"'+service.description+'"失败：'+e.code+' - '+e.message);
+				});
+			}
+			
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Share</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br />
+			<p style="text-align: left;"> 分享内容：</p>
+			<textarea id="sharecontent" name="sharecontent" rows="3" cols="">我正在使用HBuilder+HTML5开放移动应用，赶紧跟我一起来体验吧！</textarea>
+			<br />
+			<p style="text-align: left;"> 分享图片：</p>
+			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="share_show();">分 享</button>
+		</div>
+		<div id="output">
+			 Share模块管理客户端的社交分享功能，提供调用终端社交软件的分享能力。通过plus.share可获取社交分享管理对象。
+		</div>
+		
+		<div id="popover" class="popover"></div>
+		<div id="menu" class="menu">
+			<div id="weixinSession" class="mui-btn mui-btn-blue mui-btn-block" onclick="share_action('weixin', 'WXSceneSession')">
+				发送给微信好友
+			</div>
+			<div id="weixinTimeline" class="mui-btn mui-btn-blue mui-btn-block" onclick="share_action('weixin', 'WXSceneTimeline')">
+				分享到微信朋友圈
+			</div>
+			<div id="sinaweibo" class="mui-btn mui-btn-blue mui-btn-block" onclick="share_action('sinaweibo')">
+				分享到新浪微博
+			</div>
+			<div class="mui-btn mui-btn-danger mui-btn-block" onclick="share_hide();">取消</div>
+		</div>
+	</body>
+</html>

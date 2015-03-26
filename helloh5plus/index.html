@@ -166,7 +166,7 @@ function always_bounce(wrapper_id, inner_id){
 				
 				preate_webview_map[id] = _openw;
 				
-				//页面加载完成后才显示
+				// 页面加载完成后才显示
 				_openw.addEventListener('loaded', function(){
 					//plus.nativeUI.closeWaiting();
 					_openw.show('pop-in', 300, function(){
@@ -277,6 +277,12 @@ function always_bounce(wrapper_id, inner_id){
 				<a id="plus/payment.html" class="mui-navigate-right">
 					Payment
 					<span>支付</span>
+				</a>
+			</li>
+			<li class="mui-table-view-cell">
+				<a id="plus/share.html" class="mui-navigate-right">
+					Share
+					<span>分享</span>
 				</a>
 			</li>
 			<!--li class="mui-table-view-cell">
