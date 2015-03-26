@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../js/template.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.dcontent {
+				text-align: center;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+		</style>
+		<script type="text/javascript">
+			var payment_channel_map = {};
+			
+			function plus_ready(){
+				
+				// 获取支付通道
+				plus.payment.getChannels(function(channels){
+					out_line('获取支付通道成功：');
+					var content = document.getElementById("dcontent");
+					var info = document.getElementById("info");
+					var txt = "支付通道信息：\n";
+					for (var i in channels){
+						var channel = channels[i];
+						payment_channel_map[channel.id] = channel;
+						
+						txt += 'id:' + channel.id + ', ';
+						txt += 'description:' + channel.description + ', ';
+						txt += 'serviceReady:' + channel.serviceReady + ";\n ";
+						
+						// 创建按钮
+						var el = document.createElement("div");
+						el.id = channel.id;
+						el.className = 'mui-btn mui-btn-blue mui-btn-block';
+						el.setAttribute('onclick', 'pay(this.id)');
+						el.innerText = channel.description + '支付';
+						
+						content.appendChild(el);
+						
+						// 检查服务
+						check_services(channel);
+					}
+					info.innerText = txt;
+				}, function(e){
+					out_line('获取支付通道失败：'+e.message);
+				});
+				
+			}
+			
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+			
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded', function(){
+				
+			}, false);
+			
+			/**
+			 * 检查服务
+			 * @param {Object} channel
+			 */
+			function check_services(payment_channel){
+				if(!payment_channel.serviceReady){
+					var txt = '';
+					if(payment_channel.id == 'alipay'){
+						txt = '检测到系统未安装"支付宝快捷支付服务"，无法完成支付操作，是否立即安装？';
+					}else{
+						txt = '系统未安装"'+payment_channel.description+'"服务，无法完成支付，是否立即安装？';
+					}
+					plus.nativeUI.confirm(txt, function(event){
+						if(event.index == 0){
+							payment_channel.installService();
+						}
+					}, payment_channel.description);
+				}
+			}
+			
+			var ALIPAYSERVER = 'http://demo.dcloud.net.cn/helloh5/payment/alipay.php?total=';
+			var WXPAYSERVER = 'http://demo.dcloud.net.cn/helloh5/payment/wxpay.php?total=';
+			
+			/**
+			 * 支付
+			 * @param string id
+			 */
+			function pay(id){
+				out_set('----- 请求支付 -----');
+				var PAYSERVER = '';
+				if(id == 'alipay'){
+					PAYSERVER = ALIPAYSERVER;
+				}else if(id == 'wxpay'){
+					PAYSERVER = WXPAYSERVER;
+				}else{
+					plus.nativeUI.alert('不支持此支付通道！', null, '捐赠');
+					return;
+				}
+				
+				// 请求支付订单
+				var amount = document.getElementById("total").value;
+				var xhr = new plus.net.XMLHttpRequest();
+				xhr.onreadystatechange = function(){
+					switch(xhr.readyState){
+						case 4: 
+							if(xhr.status == 200){
+								out_line('----- 请求订单成功 -----');
+								out_line(xhr.responseText);
+								var order = xhr.responseText;
+								
+								plus.payment.request(payment_channel_map[id], order, function(result){
+									out_line('----- 支付成功 -----');
+									out_line('order: ' + JSON.stringify(order));
+									out_line('result: ' + JSON.stringify(result));
+									plus.nativeUI.alert('支付成功：感谢您的支持，我们会继续努力完善产品。', null, '捐赠');
+								}, function(e){
+									out_line('----- 支付失败 -----');
+									out_line('['+e.code+']:'+e.message);
+									plus.nativeUI.alert('更多错误信息请参考支付(Payment)规范文档', null, "支付失败："+e.code);
+									
+									// 支付宝取消支付，code: 62001
+								});
+								
+							}else{
+								out_line('----- 请求订单失败 -----');
+								out_line(xhr.status);
+								plus.nativeUI.alert('获取订单信息失败！', null, '捐赠');
+							}
+							break;
+						default:
+							break;
+							
+					}
+				}
+				xhr.open( "GET", PAYSERVER + amount);
+				out_line("请求支付订单："+PAYSERVER + amount);
+				xhr.send();
+			}
+
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Payment</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br />
+			<p id="info">支付通道信息：</p>
+			<div style="padding: 0.5em 1em;"><hr /></div>
+			<p>请 蔡繁荣 喝冰露矿泉水!</p>
+			<div>捐款金额：<input type="number" id='total' value="0.01" style="width: 20%;"/> 元</div>
+		</div>
+		<div id="output">
+			Payment模块管理支付功能，可通过js调用第三方支付服务。通过plus.payment可获取支付管理对象。
+		</div>
+	</body>
+</html>

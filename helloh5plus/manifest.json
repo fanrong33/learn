@@ -200,6 +200,18 @@
                     "xhdpi": "", /*720P高分屏启动图片，分辨率：720x1242*/
                     "xxhdpi": ""/*1080P高分屏启动图片，分辨率：1080x1882*/
                 }
+            },
+            "plugins": {
+            		"payment": {
+            			"alipay": {/*配置应用使用支付宝支付，参考http://ask.dcloud.net.cn/article/71*/
+                        "scheme": "helloh5plus",/*ios平台在支付宝应用支付完成后返回当前应用使用的url scheme*/
+                        "description": "支付宝支付"
+                    },
+                    "weixin": {
+                        "scheme": "wx****************",/*ios平台在微信应用中支付完成后返回当前应用使用的url scheme，值为在微信开放平台升级应用的AppID值*/
+                        "description": "微信支付"
+                    }
+            		}
             }
         }
     }
