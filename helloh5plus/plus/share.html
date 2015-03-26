@@ -41,6 +41,10 @@
 				overflow-y: scroll;
 				-webkit-overflow-scrolling: touch;
 			}
+			#pic{
+				width: 100px;
+				height: 100px;
+			}
 			.popover{
 				display:none;
 				position:fixed;
@@ -72,7 +76,8 @@
 			}
 		</style>
 		<script type="text/javascript">
-			
+			is_share_href = false;
+
 			function plus_ready(){
 				
 				update_services();
@@ -105,21 +110,93 @@
 				});
 			}
 			
+			function share_camera_picture(){
+				out_set('拍照添加分享图片：');
+				var camera = plus.camera.getCamera();
+				camera.captureImage(function(url){
+					plus.io.resolveLocalFileSystemURL(url, function(entry){
+						pic.src = entry.toLocalURL();
+						pic.realUrl = url;
+					}, function(e){
+						out_line('读取拍照文件错误：'+e.message);
+					});
+				}, function(e){
+					out_line('拍照失败：'+e.message);
+				});
+			}
+			
+			/**
+			 * 从相册添加图片分享
+			 */
+			function share_gallery_picture(){
+				out_set('相册选取分享图片：');
+				plus.gallery.pick(function(url){
+					// 从相册返回的路径不需要转换可以直接使用
+					out_line('url:'+url);
+					pic.src = url;
+					pic.realUrl = url;
+				}, function(e){
+					out_line('读取相册文件错误：'+e.message);
+				});
+			}
+			
+			/**
+			 * 使用logo图片分享
+			 */
+			function share_logo_picture(){
+				out_set('使用logo分享图片：');
+				var url = '_www/logo.png';
+				url = 'http://ww2.sinaimg.cn/bmiddle/684ff39bgw1eqj5kv7xcij20ms0f6tb2.jpg';
+				pic.src = url;
+				pic.realUrl = url;
+				
+//				plus.io.resolveLocalFileSystemURL(url, function(entry){
+//					pic.src = entry.toLocalURL();
+//					pic.realUrl = url;
+//				}, function(e){
+//					out_line('读取logo文件失败：'+e.message);
+//				});
+			}
+			
 			/**
 			 * 打开分享
 			 */
 			function share_show(){
+				is_share_href = false;
 				var popover = document.getElementById("popover");
 				var menu    = document.getElementById("menu");
 
+				sinaweibo.style.display = 'block';
+				tencentweibo.style.display = 'block';
 				popover.style.display = 'block';
 				menu.style.display = 'block';
+				
 				setTimeout(function(){ // 打开的时候，动画慢一点
 					popover.style.opacity = "1";
 					menu.style.opacity = "1";
 					menu.style.webkitTransform = "translateY(0)";
 				}, 0);
 			}
+			
+			/**
+			 * 分享链接
+			 * 只有微信和微信朋友圈适用,隐藏微博
+			 */
+			function share_href(){
+				is_share_href = true;
+				
+				sinaweibo.style.display = 'none';
+				tencentweibo.style.display = 'none';
+				popover.style.display = 'block';
+				menu.style.display = 'block';
+				
+				setTimeout(function(){ // 打开的时候，动画慢一点
+					popover.style.opacity = "1";
+					menu.style.opacity = "1";
+					menu.style.webkitTransform = "translateY(0)";
+				}, 0);
+			}
+			
 			
 			/**
 			 * 取消分享
@@ -170,6 +247,23 @@
 					content: sharecontent.value,
 					extra: { scene: extra }
 				};
+				if(is_share_href){
+					// 分享链接（微信和微信朋友圈）
+					msg.href = sharehref.value;
+					if(sharehref_title && sharehref_title.value != ''){
+						msg.title = sharehref_title.value;
+					}
+					if(sharehref_des && sharehref_des.value != ''){
+						msg.content = sharehref_des.value;
+					}
+					msg.thumbs = [ 'http://ww2.sinaimg.cn/bmiddle/684ff39bgw1eqj5kv7xcij20ms0f6tb2.jpg' ];
+				}else{
+					// 不是分享链接
+					if(pic && pic.realUrl){
+						msg.pictures = [ pic.realUrl ];
+					}
+				}
+				
 				out_line(JSON.stringify(msg));
 				
 				service.send(msg, function(){
@@ -177,6 +271,20 @@
 				}, function(e){
 					out_line('分享到"'+service.description+'"失败：'+e.code+' - '+e.message);
 				});
+			}
+			
+			/**
+			 * 解除所有分享服务的授权
+			 */
+			function cancel_auth(){
+				out_set('解除授权：');
+				for( var i in share_service_map){
+					var service = share_service_map[i];
+					if(service.authenticated){
+						out_line('取消"'+service.description+'"');
+					}
+					service.forbid();
+				}
 			}
 			
 		</script>
@@ -192,7 +300,39 @@
 			<textarea id="sharecontent" name="sharecontent" rows="3" cols="">我正在使用HBuilder+HTML5开放移动应用，赶紧跟我一起来体验吧！</textarea>
 			<br />
 			<p style="text-align: left;"> 分享图片：</p>
+			<table style="width: 100%;">
+				<tr>
+					<td style="width: 30%;">
+						<button class="mui-btn mui-btn-green" onclick="share_camera_picture()">拍照</button>
+					</td>
+					<td style="width: 30%;">
+						<button class="mui-btn mui-btn-green" onclick="share_gallery_picture()">相册选取</button>
+					</td>
+					<td style="width: 30%;">
+						<button class="mui-btn mui-btn-green" onclick="share_logo_picture()">使用logo图</button>
+					</td>
+				</tr>
+			</table>
+			<br />
+			<img id="pic" src="../img/add.png"/>
+			<br />
 			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="share_show();">分 享</button>
+			
+			<hr />
+			
+			<p>链接地址：</p>
+			<input type="url" name="sharehref" id="sharehref" value="http://fanrong33.com" placeholder="请输入要分享的链接地址"/>
+			<p>链接标题：</p>
+			<input type="text" name="sharehref_title" id="sharehref_title" value="Hello HTML5Plus!" placeholder="请输入要分享的链接标题"/>
+			<p>链接描述：</p>
+			<input type="text" name="sharehref_des" id="sharehref_des" value="我正在使用HBuilder+HTML5开发移动应用，赶紧跟我一起来体验！" placeholder="请输入要分享的链接描述">
+			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="share_href();">分享链接</button>
+
+			<br />
+			<hr />
+			<p>如果需要解除分享中绑定的用户信息，请点击解除授权：</p>
+			<button class="mui-btn mui-btn-danger mui-btn-block" onclick="cancel_auth();">解除授权</button>
+			
 		</div>
 		<div id="output">
 			 Share模块管理客户端的社交分享功能，提供调用终端社交软件的分享能力。通过plus.share可获取社交分享管理对象。
@@ -209,7 +349,11 @@
 			<div id="sinaweibo" class="mui-btn mui-btn-blue mui-btn-block" onclick="share_action('sinaweibo')">
 				分享到新浪微博
 			</div>
+			<div id="tencentweibo" class="mui-btn mui-btn-blue mui-btn-block" onclick="share_action('tencentweibo')">
+				分享到腾讯微博
+			</div>
 			<div class="mui-btn mui-btn-danger mui-btn-block" onclick="share_hide();">取消</div>
+			<br />
 		</div>
 	</body>
 </html>
