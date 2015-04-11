@@ -1,78 +1,49 @@
+/*
+ * 注意：
+ * 1. 所有的JS接口只能在公众号绑定的域名下调用，公众号开发者需要先登录微信公众平台进入“公众号设置”的“功能设置”里填写“JS接口安全域名”。
+ * 2. 如果发现在 Android 不能分享自定义内容，请到官网下载最新的包覆盖安装，Android 自定义分享接口需升级至 6.0.2.58 版本及以上。
+ * 3. 完整 JS-SDK 文档地址：http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html
+ *
+ * 如有问题请通过以下渠道反馈：
+ * 邮箱地址：weixin-open@qq.com
+ * 邮件主题：【微信JS-SDK反馈】具体问题
+ * 邮件内容说明：用简明的语言描述问题所在，并交代清楚遇到该问题的场景，可附上截屏图片，微信团队会尽快处理你的反馈。
+ */
 wx.ready(function () {
-	alert("启动jsapi!");
   // 1 判断当前版本是否支持指定 JS 接口，支持批量判断
   document.querySelector('#checkJsApi').onclick = function () {
     wx.checkJsApi({
       jsApiList: [
-                  'checkJsApi',
-                  'onMenuShareTimeline',
-                  'onMenuShareAppMessage',
-                  'onMenuShareQQ',
-                  'onMenuShareWeibo',
-                  'hideMenuItems',
-                  'showMenuItems',
-                  'hideAllNonBaseMenuItem',
-                  'showAllNonBaseMenuItem',
-                  'translateVoice',
-                  'startRecord',
-                  'stopRecord',
-                  'onRecordEnd',
-                  'playVoice',
-                  'pauseVoice',
-                  'stopVoice',
-                  'uploadVoice',
-                  'downloadVoice',
-                  'chooseImage',
-                  'previewImage',
-                  'uploadImage',
-                  'downloadImage',
-                  'getNetworkType',
-                  'openLocation',
-                  'getLocation',
-                  'hideOptionMenu',
-                  'showOptionMenu',
-                  'closeWindow',
-                  'scanQRCode',
-                  'chooseWXPay',
-                  'openProductSpecificView',
-                  'addCard',
-                  'chooseCard',
-                  'openCard'
-                ],
+        'getNetworkType',
+        'previewImage'
+      ],
       success: function (res) {
-      	alert("检测通过："  +JSON.stringify(res));
-      },
-      fail: function(res) {
-      	alert("检测失败："  +JSON.stringify(res));
-      },
-      complete: function(res) {
-      	alert("检测结束");
+        alert(JSON.stringify(res));
       }
     });
   };
 
   // 2. 分享接口
   // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+  // 常见问题：在iOS和Android都无法分享（请确认公众号已经认证，只有认证的公众号才具有分享相关接口权限，如果确实已经认证，则要检查监听接口是否在wx.ready回调函数中触发） 
   document.querySelector('#onMenuShareAppMessage').onclick = function () {
     wx.onMenuShareAppMessage({
-      title: 'wechat-php-sdk博客',
-      desc: '微信公众平台php开发包,细化各项接口操作,支持链式调用。项目创建人：dodgepudding 项目地址：https://github.com/dodgepudding/wechat-php-sdk',
-      link: 'http://binsee.github.io/wechat-php-sdk/',
-      imgUrl: 'http://binsee.github.io/wechat-php-sdk/img/author.jpg',
+      title: '互联网之子',
+      desc: '在长大的过程中，我才慢慢发现，我身边的所有事，别人跟我说的所有事，那些所谓本来如此，注定如此的事，它们其实没有非得如此，事情是可以改变的。更重要的是，有些事既然错了，那就该做出改变。',
+      link: 'http://movie.douban.com/subject/25785114/',
+      imgUrl: 'http://demo.open.weixin.qq.com/jssdk/images/p2166127561.jpg',
       trigger: function (res) {
-      	alert("点击分享：" +JSON.stringify(res));
-          // 用户确认分享后执行的回调函数
+        // 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+        alert('用户点击发送给朋友');
       },
       success: function (res) {
-      	alert("分享成功：" +JSON.stringify(res));
-          // 用户确认分享后执行的回调函数
+        alert('已分享');
       },
       cancel: function (res) {
-      	alert("取消分享：" +JSON.stringify(res));
-          // 用户取消分享后执行的回调函数
+        alert('已取消');
       },
-      fail:function (res) {
-      	alert("分享失败：" +JSON.stringify(res));
+      fail: function (res) {
+        alert(JSON.stringify(res));
       }
     });
     alert('已注册获取“发送给朋友”状态事件');
@@ -81,25 +52,22 @@ wx.ready(function () {
   // 2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
   document.querySelector('#onMenuShareTimeline').onclick = function () {
     wx.onMenuShareTimeline({
-      title: 'wechat-php-sdk博客',
-      desc: '微信公众平台php开发包,细化各项接口操作,支持链式调用。项目创建人：dodgepudding 项目地址：https://github.com/dodgepudding/wechat-php-sdk',
-      link: 'http://binsee.github.io/wechat-php-sdk/',
-      imgUrl: 'http://binsee.github.io/wechat-php-sdk/img/author.jpg',
+      title: '互联网之子',
+      link: 'http://movie.douban.com/subject/25785114/',
+      imgUrl: 'http://demo.open.weixin.qq.com/jssdk/images/p2166127561.jpg',
       trigger: function (res) {
-        	alert("点击分享：" +JSON.stringify(res));
-            // 用户确认分享后执行的回调函数
-        },
-        success: function (res) {
-        	alert("分享成功：" +JSON.stringify(res));
-            // 用户确认分享后执行的回调函数
-        },
-        cancel: function (res) {
-        	alert("取消分享：" +JSON.stringify(res));
-            // 用户取消分享后执行的回调函数
-        },
-        fail:function (res) {
-        	alert("分享失败：" +JSON.stringify(res));
-        }
+        // 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+        alert('用户点击分享到朋友圈');
+      },
+      success: function (res) {
+        alert('已分享');
+      },
+      cancel: function (res) {
+        alert('已取消');
+      },
+      fail: function (res) {
+        alert(JSON.stringify(res));
+      }
     });
     alert('已注册获取“分享到朋友圈”状态事件');
   };
@@ -107,24 +75,24 @@ wx.ready(function () {
   // 2.3 监听“分享到QQ”按钮点击、自定义分享内容及分享结果接口
   document.querySelector('#onMenuShareQQ').onclick = function () {
     wx.onMenuShareQQ({
-      title: 'wechat-php-sdk博客',
-      desc: '微信公众平台php开发包,细化各项接口操作,支持链式调用。项目创建人：dodgepudding 项目地址：https://github.com/dodgepudding/wechat-php-sdk',
-      link: 'http://binsee.github.io/wechat-php-sdk/',
-      imgUrl: 'http://binsee.github.io/wechat-php-sdk/img/author.jpg',
+      title: '互联网之子',
+      desc: '在长大的过程中，我才慢慢发现，我身边的所有事，别人跟我说的所有事，那些所谓本来如此，注定如此的事，它们其实没有非得如此，事情是可以改变的。更重要的是，有些事既然错了，那就该做出改变。',
+      link: 'http://movie.douban.com/subject/25785114/',
+      imgUrl: 'http://img3.douban.com/view/movie_poster_cover/spst/public/p2166127561.jpg',
       trigger: function (res) {
-      	alert("点击分享：" +JSON.stringify(res));
-          // 用户确认分享后执行的回调函数
+        alert('用户点击分享到QQ');
+      },
+      complete: function (res) {
+        alert(JSON.stringify(res));
       },
       success: function (res) {
-      	alert("分享成功：" +JSON.stringify(res));
-          // 用户确认分享后执行的回调函数
+        alert('已分享');
       },
       cancel: function (res) {
-      	alert("取消分享：" +JSON.stringify(res));
-          // 用户取消分享后执行的回调函数
+        alert('已取消');
       },
-      fail:function (res) {
-      	alert("分享失败：" +JSON.stringify(res));
+      fail: function (res) {
+        alert(JSON.stringify(res));
       }
     });
     alert('已注册获取“分享到 QQ”状态事件');
@@ -133,25 +101,25 @@ wx.ready(function () {
   // 2.4 监听“分享到微博”按钮点击、自定义分享内容及分享结果接口
   document.querySelector('#onMenuShareWeibo').onclick = function () {
     wx.onMenuShareWeibo({
-      title: 'wechat-php-sdk博客',
-      desc: '微信公众平台php开发包,细化各项接口操作,支持链式调用。项目创建人：dodgepudding 项目地址：https://github.com/dodgepudding/wechat-php-sdk',
-      link: 'http://binsee.github.io/wechat-php-sdk/',
-      imgUrl: 'http://binsee.github.io/wechat-php-sdk/img/author.jpg',
+      title: '互联网之子',
+      desc: '在长大的过程中，我才慢慢发现，我身边的所有事，别人跟我说的所有事，那些所谓本来如此，注定如此的事，它们其实没有非得如此，事情是可以改变的。更重要的是，有些事既然错了，那就该做出改变。',
+      link: 'http://movie.douban.com/subject/25785114/',
+      imgUrl: 'http://img3.douban.com/view/movie_poster_cover/spst/public/p2166127561.jpg',
       trigger: function (res) {
-        	alert("点击分享：" +JSON.stringify(res));
-            // 用户确认分享后执行的回调函数
-        },
-        success: function (res) {
-        	alert("分享成功：" +JSON.stringify(res));
-            // 用户确认分享后执行的回调函数
-        },
-        cancel: function (res) {
-        	alert("取消分享：" +JSON.stringify(res));
-            // 用户取消分享后执行的回调函数
-        },
-        fail:function (res) {
-        	alert("分享失败：" +JSON.stringify(res));
-        }
+        alert('用户点击分享到微博');
+      },
+      complete: function (res) {
+        alert(JSON.stringify(res));
+      },
+      success: function (res) {
+        alert('已分享');
+      },
+      cancel: function (res) {
+        alert('已取消');
+      },
+      fail: function (res) {
+        alert(JSON.stringify(res));
+      }
     });
     alert('已注册获取“分享到微博”状态事件');
   };
@@ -253,7 +221,6 @@ wx.ready(function () {
       success: function (res) {
         alert('上传语音成功，serverId 为' + res.serverId);
         voice.serverId = res.serverId;
-        alert("上传语音信息：" + JSON.stringify(res));
       }
     });
   };
@@ -269,7 +236,6 @@ wx.ready(function () {
       success: function (res) {
         alert('下载语音成功，localId 为' + res.localId);
         voice.localId = res.localId;
-        alert("下载语音信息：" + JSON.stringify(res));
       }
     });
   };
@@ -314,8 +280,7 @@ wx.ready(function () {
         localId: images.localId[i],
         success: function (res) {
           i++;
-            alert('已上传：' + i + '/' + length);
-            alert("上传图片信息：" + JSON.stringify(res));
+          alert('已上传：' + i + '/' + length);
           images.serverId.push(res.serverId);
           if (i < length) {
             upload();
@@ -342,8 +307,7 @@ wx.ready(function () {
         serverId: images.serverId[i],
         success: function (res) {
           i++;
-            alert('已下载：' + i + '/' + length);
-            alert("下载图片信息：" + JSON.stringify(res));
+          alert('已下载：' + i + '/' + length);
           images.localId.push(res.localId);
           if (i < length) {
             download();
@@ -385,13 +349,18 @@ wx.ready(function () {
     wx.getLocation({
       success: function (res) {
         alert(JSON.stringify(res));
+        // {'latitude': 23.099994, 'longitude': 113.324520, 'spped': -1, 'accuracy': 65, 'errMsg': 'getLocation:ok'}
+        // var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+        // var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+        // var speed = res.speed; // 速度，以米/每秒计
+        // var accuracy = res.accuracy; // 位置精度
       },
       cancel: function (res) {
         alert('用户拒绝授权获取地理位置');
       }
     });
   };
-  
+
   // 8 界面操作接口
   // 8.1 隐藏右上角菜单
   document.querySelector('#hideOptionMenu').onclick = function () {
@@ -463,9 +432,7 @@ wx.ready(function () {
   // 9 微信原生接口
   // 9.1.1 扫描二维码并返回结果
   document.querySelector('#scanQRCode0').onclick = function () {
-    wx.scanQRCode({
-      desc: 'scanQRCode desc'
-    });
+    wx.scanQRCode();
   };
   // 9.1.2 扫描二维码并返回结果
   document.querySelector('#scanQRCode1').onclick = function () {
@@ -481,10 +448,12 @@ wx.ready(function () {
   // 10 微信支付接口
   // 10.1 发起一个支付请求
   document.querySelector('#chooseWXPay').onclick = function () {
+    // 注意：此 Demo 使用 2.7 版本支付接口实现，建议使用此接口时参考微信支付相关最新文档。
     wx.chooseWXPay({
       timestamp: 1414723227,
       nonceStr: 'noncestr',
       package: 'addition=action_id%3dgaby1234%26limit_pay%3d&bank_type=WX&body=innertest&fee_type=1&input_charset=GBK&notify_url=http%3A%2F%2F120.204.206.246%2Fcgi-bin%2Fmmsupport-bin%2Fnotifypay&out_trade_no=1414723227818375338&partner=1900000109&spbill_create_ip=127.0.0.1&total_fee=1&sign=432B647FE95C7BF73BCD177CEECBEF8D',
+      signType: 'SHA1', // 注意：新版支付接口使用 MD5 加密
       paySign: 'bd5b1933cda6e9548862944836a9b52e8c9a2b69'
     });
   };
@@ -492,7 +461,7 @@ wx.ready(function () {
   // 11.3  跳转微信商品页
   document.querySelector('#openProductSpecificView').onclick = function () {
     wx.openProductSpecificView({
-      productId: 'pDF3iY0ptap-mIIPYnsM5n8VtCR0'
+      productId: 'pDF3iY_m2M7EQ5EKKKWd95kAxfNw'
     });
   };
 
@@ -536,6 +505,15 @@ wx.ready(function () {
       ]
     });
   };
+
+  var shareData = {
+    title: '微信JS-SDK Demo',
+    desc: '微信JS-SDK,帮助第三方为用户提供更优质的移动web服务',
+    link: 'http://demo.open.weixin.qq.com/jssdk/',
+    imgUrl: 'http://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRt8Qia4lv7k3M9J1SKqKCImxJCt7j9rHYicKDI45jRPBxdzdyREWnk0ia0N5TMnMfth7SdxtzMvVgXg/0'
+  };
+  wx.onMenuShareAppMessage(shareData);
+  wx.onMenuShareTimeline(shareData);
 });
 
 wx.error(function (res) {
