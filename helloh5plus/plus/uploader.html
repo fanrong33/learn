@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../js/template.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.dcontent {
+				text-align: center;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+		</style>
+		<script type="text/javascript">
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded', function(){
+					
+			}, false);
+			
+			if(window.plus){
+				plus_ready();
+			}else{
+				document.addEventListener('plusready', plus_ready, false);
+			}
+						
+			function plus_ready(){
+				
+			}
+			
+			var server_url = 'http://demo.dcloud.net.cn/helloh5/uploader/upload.php';
+			/** 服务器端接受到的数据:
+			$_POST(
+				[client] => HelloH5+
+			    [uid] => 191302198
+			)
+			$_FILES(
+				[uploadkey1] => Array(
+					[name] => photo_008.jpg
+					[type] => image/jpeg
+					[tmp_name] => /tmp/phpHgqm7T
+					[error] => 0
+					[size] => 109115
+				)
+			)
+			*/
+			var file_list = [];
+			
+			/**
+			 * 上传文件
+			 */
+			function upload(){
+				if(file_list.length <= 0){
+					plus.nativeUI.alert('没有添加上传文件！');
+					return;
+				}
+				out_set('开始上传：');
+				plus.nativeUI.showWaiting();
+				// 定义上传任务，此接口为表单方式的文件上传
+				var upload_task = plus.uploader.createUpload(server_url, { method: "POST" }, function(upload, status){
+					
+					if(status == 200){
+						out_line('上传成功：'+upload.responseText);
+						
+						plus.storage.setItem('uploader', upload.responseText);
+						
+						var wv_result = plus.webview.create('uploader_result.html', 'uploader_result.html', {
+							scrollIndicator: 'none', scalable: false
+						});
+						wv_result.addEventListener('loaded', function(){
+							plus.nativeUI.closeWaiting();
+							wv_result.show('slide-in-right', 300);
+						}, false);
+						
+					}else{
+						out_line('上传失败：'+status);
+						plus.nativeUI.closeWaiting();
+					}
+				});
+				// 添加上传数据
+				upload_task.addData('client', 'HelloH5+');
+				upload_task.addData('uid', get_uid());
+				for(var i=0; i< file_list.length; i++){
+					var file = file_list[i];
+					upload_task.addFile(file.path, { key: file.name });
+				}
+				// 开始上传
+				upload_task.start();
+			}
+			
+			/**
+			 * 拍照
+			 */
+			function append_by_camera(){
+				plus.camera.getCamera().captureImage(function(url){
+					append_file(url);
+				});
+			}
+			
+			/**
+			 * 从相册中选择图片
+			 */
+			function append_by_gallery(){
+				plus.gallery.pick(function(url){
+					append_file(url);
+				});
+			}
+			
+			/**
+			 * 添加文件
+			 */
+			var index = 1;
+			function append_file(url){
+				var files = document.getElementById('files');
+				var li_el = document.createElement("li");
+				
+				// 获取文件名
+				var filename = url.substr(url.lastIndexOf('/')+1);
+				li_el.innerText = filename;
+				
+				files.appendChild(li_el);
+				file_list.push({ name: "uploadkey"+index, path: url });
+				index++;
+				empty.style.display = 'none';
+			}
+			
+			/**
+			 * 产生一个随机数
+			 */
+			function get_uid(){
+				return Math.floor(Math.random()*100000000+100000000).toString();
+			}
+			
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Uploader</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br />
+			<p>文件上传列表：</p>
+			<ul id="files" style="text-align: left;">
+				<p id="empty" style="font-size: 12px; color: #c6c6c6;">无上传文件</p>
+			</ul>
+			<table style="width: 100%;">
+				<tr>
+					<td width="40%">
+						<button class="mui-btn" onclick="append_by_camera()">拍照</button>
+					</td>
+					<td width="40%">
+						<button class="mui-btn" onclick="append_by_gallery()">相册选取</button>
+					</td>
+				</tr>
+			</table>
+			<br />
+			<button class="mui-btn mui-btn-blue mui-btn-block" onclick="upload()">上 传</button>
+			<br />
+		</div>
+		<div id="output">
+			Uploader用于管理文件的上传，用于从本地上传各种文件到网络服务器，支持跨域访问操作。 
+		</div>
+		
+	</body>
+</html>
