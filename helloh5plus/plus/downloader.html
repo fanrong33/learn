@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="misapplication-tap-highlight" content="no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+	    <link href="../css/mui.min.css" rel="stylesheet"/>
+	    <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	    <style type="text/css">
+			.scontent {
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 0px;
+				text-align: center;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+			.dcontent {
+				text-align: center;
+				/*padding-top: 44px;
+				padding-bottom: 80px;*/
+				
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+				
+				width: 100%;
+				position: fixed;
+				top: 44px;
+				bottom: 100px;
+			}
+			#output {
+				height: 100px;
+				position: fixed;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				color: #f00;
+				background: #FFF;
+				font-size: 12px;
+				line-height: 16px;
+				word-break: break-all;
+				z-index: 6666;
+				padding: 8px 16px;
+				overflow-x: hidden;
+				border-top: 2px solid #AAA;
+				overflow-y: scroll;
+				-webkit-overflow-scrolling: touch;
+			}
+
+			.mui-table-view-cell.active{
+				background: #f4f4f4;
+			}
+		</style>
+		<script type="text/javascript">
+			// DOMContentLoaded事件处理
+			document.addEventListener('DOMContentLoaded',function(){
+				
+				document.getElementById('J_back').addEventListener('tap', function(){
+					back(true);
+				});
+				
+				always_bounce('dcontent', 'link_list');
+				
+				g_init();
+			},false);
+			
+			// 处理返回事件
+			function back(hide){
+				if(window.plus){
+					var ws = plus.webview.currentWebview();
+					if(hide){
+						console.info(ws.id+' hide');
+						ws.hide('auto', 300);
+					}else{
+						console.info(ws.id+' close');
+						ws.close('auto', 300);
+					}
+				}else if(history.length>1){
+					history.back();
+				}else{
+					window.close();
+				}
+			}
+			
+			// 扩展API准备完成后要执行的操作
+			function plusReady(){
+				// 隐藏滚动条
+				plus.webview.currentWebview().setStyle({scrollIndicator:'none'});
+				
+				plus.navigator.setStatusBarBackground('rgb(247,247,247)');
+			}
+			
+		    if(window.plus){
+			    plusReady();
+			}else{ 
+			    document.addEventListener("plusready", plusReady, false);
+			}
+			
+			/**
+			 * 始终开启回弹效果
+			 * 当容器内容高度不足以启动（-webkit-overflow-scrolling:touch）时，自动在后面添加空白div
+			 * @param  string   wrapper_id 容器id, 设置了回弹样式
+			 * @param  string   inner_id   容器内标签id
+			 */
+			function always_bounce(wrapper_id, inner_id){
+			    var wrapper_el = document.getElementById(wrapper_id);
+			    var inner_el   = document.getElementById(inner_id);
+			
+			    var wrapper_height = outer_height(wrapper_el, true);
+			    var inner_height   = outer_height(inner_el, true);
+					
+			    if(inner_height <= wrapper_height){
+			        // 在滚动条的里面添加空的元素，撑开内容
+			        var el = document.createElement('div');
+			        el.style.height = (wrapper_height-inner_height+1)+'px';
+			        wrapper_el.appendChild(el);
+			    }
+				
+			    // 原生方法
+			    function outer_height(el, includeMargin){
+			      var height = el.offsetHeight;
+			     
+			      if(includeMargin){
+			        var style = el.currentStyle || getComputedStyle(el);
+			        height += parseInt(style.marginTop) + parseInt(style.marginBottom);
+			      }
+			      return height;
+			    }
+			}
+			
+			
+			// 通用元素对象
+			var _dout_;
+			var _dcontent_;
+			function g_init(){
+				_dout_=document.getElementById("output");
+				_dcontent_=document.getElementById("dcontent");
+			}
+			
+			// 清空输出内容
+			function out_clean(){
+				_dout_.innerHTML="";
+				_dout_.scrollTop=0;//在iOS8存在不滚动的现象
+			};
+			// 输出内容
+			function out_set(s){
+				_dout_.innerHTML=s+"<br/>";
+				(0==_dout_.scrollTop)&&(_dout_.scrollTop=1);//在iOS8存在不滚动的现象
+			};
+			
+			// 输出行内容
+			function out_line(s){
+				_dout_.innerHTML+=s+"<br/>";
+				(0==_dout_.scrollTop)&&(_dout_.scrollTop=1);//在iOS8存在不滚动的现象
+			};
+
+			
+			/**
+			 * 创建下载任务
+			 */
+			var download_task = null;
+			function create_download_task(){
+				if(download_task){
+					out_line('下载任务已创建!');
+					return;
+				}
+				
+				var url = 'http://snip.qq.com/resources/Snip_V2.0_5771.dmg';
+				download_task = plus.downloader.createDownload(url, { method: "GET" });
+				
+				download_task.addEventListener('statechanged', function(task, status){
+					switch(task.state){
+						case 1: // 开始
+							out_line('开始下载...');
+							break;
+						case 2: // 已连接到服务器
+							out_line('链接到服务器...');
+							break;
+						case 3: // 已接收到数据
+							var ds = document.getElementById("dsize");
+							if(!ds){
+								out_line('下载数据：<span id="dsize"></span>/'+task.totalSize);
+								ds = document.getElementById("dsize");
+							}
+							ds.innerText = task.downloadedSize;
+							break;
+						case 4:
+							out_line('下载完成！');
+							break;
+					}
+				});
+				out_set('创建下载任务完成！');
+			}
+			
+			/**
+			 * 启动下载任务
+			 */
+			function start_download_task(){
+				if(!download_task){
+					out_set('请先创建下载任务！');
+					return;
+				}
+				download_task.start();
+			}
+			
+			/**
+			 * 暂停下载任务
+			 */
+			function pause_download_task(){
+				if(!download_task){
+					out_set('请先创建下载任务！');
+					return;
+				}
+				download_task.pause();
+				out_set('暂停下载！');
+			}
+			
+			/**
+			 * 恢复下载任务
+			 */
+			function resume_download_task(){
+				if(!download_task){
+					out_set('请先创建下载任务！');
+					return;
+				}
+				download_task.resume();
+				out_set('恢复下载！');
+			}
+			
+			/**
+			 * 取消下载任务
+			 */
+			function cancel_download_task(){
+				if(!download_task){
+					out_set('请先创建下载任务！');
+					return;
+				}
+				download_task.abort();
+				download_task = null;
+				out_set('取消下载任务！');
+			}
+			
+		</script>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+			<h1 class="mui-title">Downloader</h1>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<div id="link_list" class="mui-card" style="margin-top: 15px;">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="create_download_task();">
+							创建下载任务
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="start_download_task();">
+							启动下载任务
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="pause_download_task();">
+							暂停下载任务
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="resume_download_task();">
+							恢复下载任务
+						</a>
+					</li>
+					<li class="mui-table-view-cell">
+						<a class="mui-navigate-right" onclick="cancel_download_task();">
+							取消下载任务
+						</a>
+					</li>
+				</ul>
+			</div><!-- .mui-card -->
+			
+		</div>
+		<div id="output">
+			Downloader用于管理文件的下载，可从网络下载各种文件，并支持跨域访问。
+		</div>
+	</body>
+</html>
