@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="MobileOptimized" content="320"/>
+        <title>Hello H5+</title>
+        <link href="../css/mui.min.css" rel="stylesheet"/>
+        <script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+        <style type="text/css">
+            .scontent {
+                width: 100%;
+                position: fixed;
+                top: 44px;
+                text-align: center;
+                overflow-y: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+            .dcontent {
+                width: 100%;
+                position: fixed;
+                top: 44px;
+                bottom: 100px;
+                text-align: center;
+                
+                overflow-y: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+            #output {
+                height: 100px;
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                color: #f00;
+                background: #FFF;
+                font-size: 12px;
+                line-height: 16px;
+                word-break: break-all;
+                z-index: 6666;
+                padding: 8px 16px;
+                overflow-x: hidden;
+                border-top: 2px solid #AAA;
+                overflow-y: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+        </style>
+        <script type="text/javascript">
+            
+            document.addEventListener('DOMContentLoaded', function(){
+
+            }, false);
+            
+            if(window.plus){
+                plus_ready();
+            }else{
+                document.addEventListener('plusready', plus_ready, false);
+            }
+            
+            function plus_ready(){
+                
+            }
+            
+        </script>
+    </head>
+    <body>
+        <header class="mui-bar mui-bar-nav">
+            <a class="mui-icon mui-icon-left-nav mui-pull-left" id="J_back"></a>
+            <h1 class="mui-title">Camera</h1>
+        </header>
+        <div id="dcontent" class="dcontent">
+            <br />
+            <button class="mui-btn mui-btn-blue mui-btn-block" onclick="get_image();">拍照</button>
+            <button class="mui-btn mui-btn-blue mui-btn-block" onclick="get_video();">录像</button>
+            <div class="mui-card">
+            <br />
+                <ul id="history" class="mui-table-view">
+                    <li id="empty" class="mui-table-view-cell">
+                        <a class="mui-navigate-right">
+                            无历史记录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <br />
+            <button class="mui-btn mui-btn-danger mui-btn-block" onclick="clear_history();">清空历史记录</button>
+        </div>
+        <div id="output">
+            Camera管理摄像头设备，可用于拍摄照片、录制视频文件。
+        </div>
+        
+    </body>
+</html>
