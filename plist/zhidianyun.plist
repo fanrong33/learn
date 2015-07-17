@@ -11,15 +11,15 @@
                     <key>kind</key>
                     <string>software-package</string>
                     <key>url</key>
-                    <string>http://test.zhidianyun.com/mobile/zhidianyun.ipa</string>
+                    <string>http://www.zhidianyun.com/mobile/zhidianyun.ipa</string>
                 </dict>
             </array>
             <key>metadata</key>
             <dict>
                 <key>bundle-identifier</key>
-                <string>com.zhidianyun.ZhidianyunApp</string>
+                <string>com.zhidianyun.ZhidianyunAppEnterprise</string>
                 <key>bundle-version</key>
-                <string>1.1.0</string>
+                <string>1.1.2</string>
                 <key>kind</key>
                 <string>software</string>
                 <key>title</key>
